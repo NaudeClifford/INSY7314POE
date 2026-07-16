@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="INSY7314API/INSY7314API.csproj" />
+  <Project Path="INSY7314MVC/INSY7314MVC.csproj" />
+</Solution>
