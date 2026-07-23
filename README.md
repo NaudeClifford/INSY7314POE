@@ -4,9 +4,7 @@ Naude Group 1
 INSY7314 POE PART 1 
 ARCHITECTURE 
 Report 
-1   
-Made by ST10258513 Clifford Naude 
-2   Made by ST10258513 Clifford Naude 
+
 Contents 
 Architecture Diagram .......................................................................................... 3 
 
