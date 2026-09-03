@@ -7,9 +7,10 @@ const {
     createUser
 } = require("../controllers/userController");
 
+const { protect } = require("../middleware/authMiddleware");
 
-// GET USERS
-router.get("/", getUsers);
+// GET USERS (now requires a valid JWT)
+router.get("/", protect, getUsers);
 
 
 // CREATE USER
