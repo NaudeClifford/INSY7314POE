@@ -1,0 +1,240 @@
+{
+  "info": {
+    "_postman_id": "79f863b5-4ff0-4b58-b82b-27b9dc1ab4c0",
+    "name": "HustleHub Part 1 - HTTPS and Authentication",
+    "description": "Repeatable HTTPS API checks for registration, login, input validation, controlled errors, and JWT route protection. Run the requests in order.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:5000" },
+    { "key": "testEmail", "value": "postman.user@example.com" },
+    { "key": "testPassword", "value": "SecurePass1!" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. HTTPS health check",
+      "request": { "method": "GET", "url": "{{baseUrl}}/" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Request uses HTTPS', () => pm.expect(pm.request.url.protocol).to.eql('https'));",
+          "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+          "pm.test('API is running', () => pm.expect(pm.response.json().message).to.eql('API Running'));"
+        ] }
+      }]
+    },
+    {
+      "name": "2. Register valid user",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"Client\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": { "exec": [
+            "pm.collectionVariables.set('testEmail', 'postman.' + Date.now() + '@example.com');"
+          ] }
+        },
+        {
+          "listen": "test",
+          "script": { "exec": [
+            "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+            "const response = pm.response.json();",
+            "pm.test('Registration response is consistent', () => pm.expect(response.message).to.eql('User registered successfully'));",
+            "pm.test('Password is not returned', () => { pm.expect(pm.response.text()).not.to.include(pm.collectionVariables.get('testPassword')); pm.expect(response.user).not.to.have.property('password'); });"
+          ] }
+        }
+      ]
+    },
+    {
+      "name": "3. Reject duplicate registration",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"Client\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+          "pm.test('Duplicate response is controlled', () => pm.expect(pm.response.json().message).to.eql('User with this email already exists.'));"
+        ] }
+      }]
+    },
+    {
+      "name": "4. Login valid user and save JWT",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+          "const response = pm.response.json();",
+          "pm.test('JWT is returned', () => pm.expect(response.token).to.be.a('string').and.not.empty);",
+          "pm.test('Password is not returned', () => pm.expect(response.user).not.to.have.property('password'));",
+          "pm.collectionVariables.set('token', response.token);"
+        ] }
+      }]
+    },
+    {
+      "name": "5. Access protected route with JWT",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/users"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+          "pm.test('Response is JSON', () => pm.response.to.be.json);"
+        ] }
+      }]
+    },
+    {
+      "name": "6. Reject missing registration fields",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/api/auth/register"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+          "const response = pm.response.json();",
+          "const paths = response.errors.map(error => error.path);",
+          "pm.test('Controlled validation response', () => pm.expect(response.message).to.eql('Validation failed.'));",
+          "pm.test('All required fields are reported', () => { pm.expect(paths).to.include('name'); pm.expect(paths).to.include('email'); pm.expect(paths).to.include('password'); });"
+        ] }
+      }]
+    },
+    {
+      "name": "7. Reject invalid registration values",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"A\",\n  \"email\": \"not-an-email\",\n  \"password\": \"weak\",\n  \"role\": \"Unknown\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+          "pm.test('Response identifies validation failure', () => pm.expect(pm.response.json().message).to.eql('Validation failed.'));",
+          "pm.test('Rejected password is not echoed', () => pm.expect(pm.response.text()).not.to.include('weak'));"
+        ] }
+      }]
+    },
+    {
+      "name": "8. Reject invalid login credentials",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"WrongPassword1!\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+          "pm.test('Response does not reveal which credential failed', () => pm.expect(pm.response.json().message).to.eql('Invalid email or password.'));"
+        ] }
+      }]
+    },
+    {
+      "name": "9. Reject missing login fields",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+          "pm.test('Controlled validation response', () => pm.expect(pm.response.json().message).to.eql('Validation failed.'));"
+        ] }
+      }]
+    },
+    {
+      "name": "10. Reject protected route without JWT",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/users" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+          "pm.test('Response is controlled', () => pm.expect(pm.response.json().message).to.eql('Not authorized, no token provided.'));"
+        ] }
+      }]
+    },
+    {
+      "name": "11. Reject protected route with invalid JWT",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer not-a-valid-token" }],
+        "url": "{{baseUrl}}/api/users"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+          "pm.test('Response is controlled', () => pm.expect(pm.response.json().message).to.eql('Not authorized, invalid or expired token.'));"
+        ] }
+      }]
+    },
+    {
+      "name": "12. Reject malformed JSON",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{not-valid-json" },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+          "pm.test('Parser details are hidden', () => pm.expect(pm.response.json().message).to.eql('The request body contains invalid JSON.'));"
+        ] }
+      }]
+    },
+    {
+      "name": "13. Reject unknown route",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/does-not-exist" },
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+          "pm.test('Response is controlled', () => pm.expect(pm.response.json().message).to.eql('Route not found.'));"
+        ] }
+      }]
+    }
+  ]
+}

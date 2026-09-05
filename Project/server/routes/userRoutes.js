@@ -9,7 +9,7 @@ const {
 
 const { protect } = require("../middleware/authMiddleware");
 
-// GET USERS (now requires a valid JWT)
+// GET USERS (requires a valid JWT)
 router.get("/", protect, getUsers);
 
 

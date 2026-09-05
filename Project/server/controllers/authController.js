@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -40,14 +40,14 @@ const registerUser = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error during registration." });
+    next(error);
   }
 };
 
 // @desc    Authenticate user & return JWT
 // @route   POST /api/auth/login
 // @access  Public
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -89,7 +89,7 @@ const loginUser = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error during login." });
+    next(error);
   }
 };
 

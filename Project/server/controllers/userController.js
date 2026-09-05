@@ -2,7 +2,7 @@ const User = require("../models/User");
 
 
 // GET ALL USERS
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
     try {
 
         const users = await User.find();
@@ -11,16 +11,14 @@ const getUsers = async (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({
-            message: error.message
-        });
+        next(error);
 
     }
 };
 
 
 // CREATE USER
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
 
     try {
 
@@ -33,9 +31,7 @@ const createUser = async (req, res) => {
 
     } catch(error){
 
-        res.status(400).json({
-            message:error.message
-        });
+        next(error);
 
     }
 

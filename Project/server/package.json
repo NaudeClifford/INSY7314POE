@@ -6,7 +6,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "generate-cert": "node scripts/generateCertificate.js",
+    "test": "node scripts/generateCertificate.js && node --test"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
