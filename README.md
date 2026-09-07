@@ -66,7 +66,9 @@ System Workflow ................................................................
 
 Conclusion ....................................................................................................... 10 
 
-References ....................................................................................................... 11 
+Screenshots .....................................................................................................11
+
+References ....................................................................................................... 12
 
 Architecture Diagram 
 <img width="646" height="2423" alt="INSY7314_POE_PART1_Architecture_ST10258513_CliffordNaude_Gr1PIC" src="https://github.com/user-attachments/assets/dda9988c-eaaf-4dcb-be2c-771a7bdaecf5" />
@@ -278,6 +280,62 @@ MongoDB. We will integrate security measures to ensure that the application is s
 from unauthorized access. The use of MERN architecture and OWASP guidelines to 
 make an robust industry standard web-based application for freelancers to create 
 bookings online with clients.  
+
+ScreenShots.
+RejectUnknownRoute
+<img width="646" height="2423" alt="RejectUnknownRoute" src="https://github.com/user-attachments/assets/8d986e27-9d8e-4166-b8e9-dad59a43ac08" />
+
+RejectProtectedRouteWithoutJWT
+<img width="1360" height="620" alt="RejectProtectedRouteWithoutJWT" src="https://github.com/user-attachments/assets/14316ff0-b9e7-4d49-ad03-01f25b642439" />
+
+RejectProtectedRouteWithInvalidJWT
+<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/be59fb52-16c3-4491-a096-a751b31e452e" />
+
+RejectMissingRegistrationFields
+<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/4904bb2d-5cde-4a7f-a7df-0edc274814e3" />
+
+RejectMissingLoginFields
+<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/5ab3cedf-0e7e-435f-b765-599d4c3d591c" />
+
+RejectMalformedJSON
+<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/37b62f79-d776-41c6-b086-31b5bd35915c" />
+
+RejectInvalidRegistrationValues
+<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/93f8f71c-c6aa-43a0-be87-2311b03b6347" />
+
+RejectInvalidLoginCredentials
+<img width="1361" height="733" alt="RejectInvalidLoginCredentials" src="https://github.com/user-attachments/assets/f65afd54-9867-4b77-b268-aaf34b132e89" />
+
+RejectDuplicateRegistration
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/308e5cc0-6010-4010-a394-953364d76fe8" />
+
+RegisterValidUser
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/9428d7f8-e189-47c7-9ac7-506854c898ca" />
+
+PowerShellTestPassingProof
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/6b3c9f2f-55cd-4a1c-a355-7b8a98284016" />
+
+PostmanCollectionTestPassed
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/c163b776-3c58-44b3-a65c-56d9f3f63312" />
+
+PasswordPolicyValidationIterationsPassedProof
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/aef45073-9852-4a7d-8f57-40980ae812fa" />
+
+PasswordPolicyValidation
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/f630c053-7734-466f-9ce3-d4634efd8119" />
+
+LoginValidUserAndSaveJWT
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/8e6b9489-d138-459b-a866-bbda58c7fe03" />
+
+HTTPSHealthCheck
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/71ec14d6-2794-419d-a465-65679e0b7a24" />
+
+BearerToken
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/745ad140-f5d5-4f08-8ff2-6d480b0bd737" />
+
+AccessProtectedRouteWithJWT
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/19f74088-7c16-4b3c-a701-f72736e87614" />
+
 
 References 
 Crudu, V., & Team, M. R. (2026, June 15). Enhancing Node.js Application Security with 
