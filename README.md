@@ -1,4 +1,4 @@
-![RegisterValidUser](https://github.com/user-attachments/assets/d95e72fe-c834-4f9c-83dc-1bb94ea7652d)![RejectMalformedJSON](https://github.com/user-attachments/assets/f7599e87-f6f6-4310-ba44-0c1460434a9b)![RejectUnkownRoute](https://github.com/user-attachments/assets/13ea6ac7-7396-47bd-9677-74b13dd8ad88)# INSY7314POE
+# INSY7314POE
 ST10258513 Clifford 
 Naude Group 1 
 INSY7314 POE PART 1 
@@ -283,7 +283,8 @@ bookings online with clients.
 
 ScreenShots.
 RejectUnknownRoute
-<img width="1360" height="620" alt="RejectUnknownRoute" src="https://github.com/user-attachments/assets/21b015de-f1e1-47e9-899b-9e1e9fc7218a" />
+<img width="1002" height="495" alt="image" src="https://github.com/user-attachments/assets/1008394b-2ff7-42a7-a35b-78c53732314f" />
+
 
 
 RejectProtectedRouteWithoutJWT
