@@ -1,11 +1,14 @@
 const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
 
 // GET ALL USERS
 const getUsers = async (req, res, next) => {
     try {
 
-        const users = await User.find();
+        const users = await User.find()
+        .select("_id name email role createdAt");
+
 
         res.json(users);
 
@@ -22,11 +25,21 @@ const createUser = async (req, res, next) => {
 
     try {
 
-        const user = new User(req.body);
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    const user = new User({
+      ...req.body,
+      password: hashedPassword
+    });
 
         const savedUser = await user.save();
 
-        res.status(201).json(savedUser);
+            res.status(201).json({
+      _id: savedUser._id,
+      name: savedUser.name,
+      email: savedUser.email,
+      role: savedUser.role,
+      createdAt: savedUser.createdAt});
 
 
     } catch(error){
