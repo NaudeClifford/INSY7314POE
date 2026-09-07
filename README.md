@@ -1,9 +1,9 @@
 # INSY7314POE
 
-ST10258513 Clifford Naude Group 1 
-ST10453370 Ruan Helgaard Hartman Group 1
-ST10438433 Caleb Forbes Group 1
-ST10437348 Alexandro Ornelas Group 1
+- ST10258513 Clifford Naude Group 1 
+- ST10453370 Ruan Helgaard Hartman Group 1
+- ST10438433 Caleb Forbes Group 1
+- ST10437348 Alexandro Ornelas Group 1
 
 POE PART 1 
 
