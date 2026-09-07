@@ -1,4 +1,4 @@
-# INSY7314POE
+![RegisterValidUser](https://github.com/user-attachments/assets/d95e72fe-c834-4f9c-83dc-1bb94ea7652d)![RejectMalformedJSON](https://github.com/user-attachments/assets/f7599e87-f6f6-4310-ba44-0c1460434a9b)![RejectUnkownRoute](https://github.com/user-attachments/assets/13ea6ac7-7396-47bd-9677-74b13dd8ad88)# INSY7314POE
 ST10258513 Clifford 
 Naude Group 1 
 INSY7314 POE PART 1 
@@ -283,58 +283,125 @@ bookings online with clients.
 
 ScreenShots.
 RejectUnknownRoute
-<img width="646" height="2423" alt="RejectUnknownRoute" src="https://github.com/user-attachments/assets/8d986e27-9d8e-4166-b8e9-dad59a43ac08" />
+![Uploading Rejec
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>503 Backend.max_conn reached</title>
+  </head>
+  <body>
+    <h1>Error 503 Backend.max_conn reached</h1>
+    <p>Backend.max_conn reached</p>
+    <h3>Error 54113</h3>
+    <p>Details: cache-jnb-faor730037-JNB 1788771518 3337271283</p>
+    <hr>
+    <p>Varnish cache server</p>
+  </body>
+</html>
+tUnkownRoute.png…]()
 
 RejectProtectedRouteWithoutJWT
-<img width="1360" height="620" alt="RejectProtectedRouteWithoutJWT" src="https://github.com/user-attachments/assets/14316ff0-b9e7-4d49-ad03-01f25b642439" />
+<img width="1360" height="620" alt="RejectProtectedRouteWithoutJWT" src="https://github.com/user-attachments/assets/cf3835d9-f029-4946-ba4f-251d0aa0a5de" />
 
 RejectProtectedRouteWithInvalidJWT
-<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/be59fb52-16c3-4491-a096-a751b31e452e" />
+<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/7af0d5db-77fe-46f0-a0ca-d888f039993f" />
+
 
 RejectMissingRegistrationFields
-<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/4904bb2d-5cde-4a7f-a7df-0edc274814e3" />
+<img width="1371" height="909" alt="RejectMissingRegistrationFields" src="https://github.com/user-attachments/assets/33beea7b-f11f-4834-9342-ee2a218cddc6" />
+
 
 RejectMissingLoginFields
-<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/5ab3cedf-0e7e-435f-b765-599d4c3d591c" />
+<img width="1371" height="884" alt="RejectMissingLoginFields" src="https://github.com/user-attachments/assets/6b6d44a7-75b1-4480-a66a-936e9bd51263" />
 
 RejectMalformedJSON
-<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/37b62f79-d776-41c6-b086-31b5bd35915c" />
+![Uploa
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>503 Backend.max_conn reached</title>
+  </head>
+  <body>
+    <h1>Error 503 Backend.max_conn reached</h1>
+    <p>Backend.max_conn reached</p>
+    <h3>Error 54113</h3>
+    <p>Details: cache-jnb-faor730038-JNB 1788771502 564029073</p>
+    <hr>
+    <p>Varnish cache server</p>
+  </body>
+</html>
+ding RejectMalformedJSON.png…]()
+
 
 RejectInvalidRegistrationValues
-<img width="1364" height="683" alt="RejectProtectedRouteWithInvalidJWT" src="https://github.com/user-attachments/assets/93f8f71c-c6aa-43a0-be87-2311b03b6347" />
+<img width="1367" height="824" alt="RejectInvalidRegistrationValues" src="https://github.com/user-attachments/assets/121c62c0-f05d-4da4-bc18-50383ea77d86" />
+
 
 RejectInvalidLoginCredentials
-<img width="1361" height="733" alt="RejectInvalidLoginCredentials" src="https://github.com/user-attachments/assets/f65afd54-9867-4b77-b268-aaf34b132e89" />
+<img width="1361" height="733" alt="RejectInvalidLoginCredentials" src="https://github.com/user-attachments/assets/3aa6f336-6f7f-494a-be50-7f673b8ec267" />
+
 
 RejectDuplicateRegistration
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/308e5cc0-6010-4010-a394-953364d76fe8" />
+<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/f75ee6a4-033a-468d-b084-bf962a51b923" />
+
+
 
 RegisterValidUser
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/9428d7f8-e189-47c7-9ac7-506854c898ca" />
+![
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>503 Backend.max_conn reached</title>
+  </head>
+  <body>
+    <h1>Error 503 Backend.max_conn reached</h1>
+    <p>Backend.max_conn reached</p>
+    <h3>Error 54113</h3>
+    <p>Details: cache-jnb-faor730033-JNB 1788771492 750469941</p>
+    <hr>
+    <p>Varnish cache server</p>
+  </body>
+</html>
+Uploading RegisterValidUser.png…]()
+
 
 PowerShellTestPassingProof
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/6b3c9f2f-55cd-4a1c-a355-7b8a98284016" />
+<img width="1303" height="854" alt="PowerShellTestPassingProof" src="https://github.com/user-attachments/assets/242a5cec-5157-440e-b497-a426e12f0fba" />
+
 
 PostmanCollectionTestPassed
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/c163b776-3c58-44b3-a65c-56d9f3f63312" />
+<img width="669" height="652" alt="PostmanCollectionTestsPassed" src="https://github.com/user-attachments/assets/867c6f57-f842-433c-85be-b822b3fad779" />
+
 
 PasswordPolicyValidationIterationsPassedProof
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/aef45073-9852-4a7d-8f57-40980ae812fa" />
+<img width="822" height="284" alt="PasswordPolicyValidationIterationsPassedProof" src="https://github.com/user-attachments/assets/7f9b9893-0f39-4fc8-81c0-8e4575728a4d" />
+
 
 PasswordPolicyValidation
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/f630c053-7734-466f-9ce3-d4634efd8119" />
+<img width="1033" height="737" alt="PasswordPolicyValidation" src="https://github.com/user-attachments/assets/2ce7df32-a114-44ba-b17b-1f6f44220139" />
+
 
 LoginValidUserAndSaveJWT
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/8e6b9489-d138-459b-a866-bbda58c7fe03" />
+<img width="1310" height="787" alt="LoginValidUserAndSaveJWT" src="https://github.com/user-attachments/assets/5ee886b3-e765-4d17-be0d-bfc1216ae80b" />
+
 
 HTTPSHealthCheck
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/71ec14d6-2794-419d-a465-65679e0b7a24" />
+<img width="1573" height="641" alt="HTTPSHealthCheck" src="https://github.com/user-attachments/assets/49e4d7a3-4241-4a58-9a28-975af48dec96" />
+
 
 BearerToken
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/745ad140-f5d5-4f08-8ff2-6d480b0bd737" />
+<img width="1560" height="915" alt="BearerToken" src="https://github.com/user-attachments/assets/e5f05c1c-b247-4270-925d-9b462287b45f" />
+
 
 AccessProtectedRouteWithJWT
-<img width="1568" height="746" alt="RejectDuplicateRegistration" src="https://github.com/user-attachments/assets/19f74088-7c16-4b3c-a701-f72736e87614" />
+<img width="1543" height="904" alt="AccessProtectedRouteWithJWT" src="https://github.com/user-attachments/assets/951eecf5-9716-4ffc-8d88-aa027bbe8a90" />
+
 
 
 References 
