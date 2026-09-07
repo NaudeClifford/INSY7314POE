@@ -283,24 +283,8 @@ bookings online with clients.
 
 ScreenShots.
 RejectUnknownRoute
-![Uploading Rejec
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-  <head>
-    <title>503 Backend.max_conn reached</title>
-  </head>
-  <body>
-    <h1>Error 503 Backend.max_conn reached</h1>
-    <p>Backend.max_conn reached</p>
-    <h3>Error 54113</h3>
-    <p>Details: cache-jnb-faor730037-JNB 1788771518 3337271283</p>
-    <hr>
-    <p>Varnish cache server</p>
-  </body>
-</html>
-tUnkownRoute.png…]()
+<img width="1360" height="620" alt="RejectUnknownRoute" src="https://github.com/user-attachments/assets/21b015de-f1e1-47e9-899b-9e1e9fc7218a" />
+
 
 RejectProtectedRouteWithoutJWT
 <img width="1360" height="620" alt="RejectProtectedRouteWithoutJWT" src="https://github.com/user-attachments/assets/cf3835d9-f029-4946-ba4f-251d0aa0a5de" />
@@ -317,24 +301,7 @@ RejectMissingLoginFields
 <img width="1371" height="884" alt="RejectMissingLoginFields" src="https://github.com/user-attachments/assets/6b6d44a7-75b1-4480-a66a-936e9bd51263" />
 
 RejectMalformedJSON
-![Uploa
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-  <head>
-    <title>503 Backend.max_conn reached</title>
-  </head>
-  <body>
-    <h1>Error 503 Backend.max_conn reached</h1>
-    <p>Backend.max_conn reached</p>
-    <h3>Error 54113</h3>
-    <p>Details: cache-jnb-faor730038-JNB 1788771502 564029073</p>
-    <hr>
-    <p>Varnish cache server</p>
-  </body>
-</html>
-ding RejectMalformedJSON.png…]()
+<img width="1371" height="884" alt="RejectMalformedJSON" src="https://github.com/user-attachments/assets/f09ca2b0-4c85-444b-99b6-e7453400b0ff" />
 
 
 RejectInvalidRegistrationValues
@@ -351,24 +318,7 @@ RejectDuplicateRegistration
 
 
 RegisterValidUser
-![
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-  <head>
-    <title>503 Backend.max_conn reached</title>
-  </head>
-  <body>
-    <h1>Error 503 Backend.max_conn reached</h1>
-    <p>Backend.max_conn reached</p>
-    <h3>Error 54113</h3>
-    <p>Details: cache-jnb-faor730033-JNB 1788771492 750469941</p>
-    <hr>
-    <p>Varnish cache server</p>
-  </body>
-</html>
-Uploading RegisterValidUser.png…]()
+<img width="1568" height="746" alt="RegisterValidUser" src="https://github.com/user-attachments/assets/222a9fb4-0beb-4888-881d-182abba01268" />
 
 
 PowerShellTestPassingProof
