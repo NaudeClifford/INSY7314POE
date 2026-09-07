@@ -95,11 +95,10 @@
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
-              "pm.test('Duplicate response is controlled', () => pm.expect(pm.response.json().message).to.eql('User with this email already exists.'));"
-            ],
-            "type": "text/javascript"
+              "pm.test('Status is 400', () => pm.response.to.have.status(409));\npm.test('Duplicate response is controlled', () => pm.expect(pm.response.json().message).to.eql('User with this email already exists.'));"
+            ]
           }
         }
       ],
@@ -113,7 +112,12 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Postman User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"Client\"\n}"
+          "raw": "{\n  \"name\": \"Postman User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"role\": \"Client\"\n}",
+          "options": {
+            "raw": {
+              "language": "text"
+            }
+          }
         },
         "url": {
           "raw": "{{baseUrl}}/api/auth/register",

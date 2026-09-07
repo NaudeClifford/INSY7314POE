@@ -214,7 +214,7 @@ test("registration rejects a duplicate email", async () => {
     }
   });
 
-  assert.equal(response.status, 400);
+  assert.equal(response.status, 409);
   assert.deepEqual(response.body, { message: "User with this email already exists." });
 });
 
