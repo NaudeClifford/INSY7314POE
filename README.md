@@ -318,7 +318,8 @@ RejectDuplicateRegistration
 
 
 RegisterValidUser
-<img width="1568" height="746" alt="RegisterValidUser" src="https://github.com/user-attachments/assets/222a9fb4-0beb-4888-881d-182abba01268" />
+<img width="999" height="534" alt="image" src="https://github.com/user-attachments/assets/23f638ea-9c1a-4c54-baf6-8f1fe264d926" />
+
 
 
 PowerShellTestPassingProof
