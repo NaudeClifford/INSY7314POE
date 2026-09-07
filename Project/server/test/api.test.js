@@ -343,7 +343,9 @@ test("protected routes reject malformed and expired JWTs", async () => {
 });
 
 test("protected routes accept a valid JWT", async () => {
-  User.find = async () => [];
+  User.find = () => ({
+  select: async () => []
+});
   const token = jwt.sign(
     { id: "507f1f77bcf86cd799439011", role: "Client" },
     process.env.JWT_SECRET,
