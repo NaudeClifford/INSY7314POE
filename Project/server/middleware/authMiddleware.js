@@ -23,7 +23,7 @@ const protect = (req, res, next) => {
   }
 };
 
-// Optional bonus: restrict by role, e.g. protect("Admin")
+// restrict by role in the future, e.g. protect("Admin")
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {

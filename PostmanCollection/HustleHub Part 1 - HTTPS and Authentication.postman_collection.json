@@ -97,7 +97,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status is 400', () => pm.response.to.have.status(409));\npm.test('Duplicate response is controlled', () => pm.expect(pm.response.json().message).to.eql('User with this email already exists.'));"
+              "pm.test('Status is 409', () => pm.response.to.have.status(409));\npm.test('Duplicate response is controlled', () => pm.expect(pm.response.json().message).to.eql('User with this email already exists.'));"
             ]
           }
         }
