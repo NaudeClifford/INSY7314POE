@@ -301,7 +301,8 @@ RejectMissingLoginFields
 <img width="1371" height="884" alt="RejectMissingLoginFields" src="https://github.com/user-attachments/assets/6b6d44a7-75b1-4480-a66a-936e9bd51263" />
 
 RejectMalformedJSON
-<img width="1371" height="884" alt="RejectMalformedJSON" src="https://github.com/user-attachments/assets/f09ca2b0-4c85-444b-99b6-e7453400b0ff" />
+<img width="1001" height="506" alt="image" src="https://github.com/user-attachments/assets/64e7cb63-decd-4279-8603-9f55818f8841" />
+
 
 
 RejectInvalidRegistrationValues
