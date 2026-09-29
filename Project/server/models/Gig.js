@@ -67,6 +67,37 @@ const gigSchema = new mongoose.Schema(
             default: true
         },
 
+        status: {
+            type: String,
+            enum: ["active", "paused", "deleted"],
+            default: "active"
+        },
+
+        views: {
+            type: Number,
+            default: 0
+        },
+
+        averageRating: {
+            type: Number,
+            default: 0
+        },
+
+        reviewCount: {
+            type: Number,
+            default: 0
+        },
+
+        imageUrl: {
+            type: String,
+            default: ""
+        },
+        weather: {
+            temperature: Number,
+            description: String,
+            icon: String
+        },
+        
         createdAt: {
             type: Date,
             default: Date.now

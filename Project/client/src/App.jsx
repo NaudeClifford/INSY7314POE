@@ -6,15 +6,26 @@ import RoleRoute from "./routes/RoleRoute";
 
 import Home from "./pages/Home";
 import Marketplace from "./pages/Marketplace";
+import MyGigs from "./pages/gig/MyGigs";
 import GigDetails from "./pages/GigDetails";
 import CreateGig from "./pages/CreateGig";
+import EditGig from "./pages/gig/EditGig";
 import Dashboard from "./pages/Dashboard";
 import Bookings from "./pages/Bookings";
 import Transactions from "./pages/Transactions";
+import Income from "./pages/transactions/Income";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
+
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminEditUser from "./pages/admin/AdminEditUser";
+import AdminGigs from "./pages/admin/AdminGigs";
+import AdminBookings from "./pages/admin/AdminBookings";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminApiUsage from "./pages/admin/AdminApiUsage";
 
 function App() {
   return (
@@ -36,10 +47,54 @@ function App() {
 
         {/* Freelancer only */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<RoleRoute allowedRoles={["freelancer"]} />}>
+          <Route element={<RoleRoute allowedRoles={["Freelancer"]} />}>
+            <Route path="/my-gigs" element={<MyGigs />} />
             <Route path="/create-gig" element={<CreateGig />} />
+            <Route path="/gigs/:id/edit" element={<EditGig />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/income" element={<Income />} />
             <Route path="/transactions" element={<Transactions />} />
+          </Route>
+        </Route>
+
+        {/* Admin route */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
+            <Route
+              path="/admin"
+              element={<AdminDashboard />}
+            />
+
+          <Route
+            path="/admin/users"
+            element={<AdminUsers />}
+          />
+
+          <Route
+            path="/admin/users/:id/edit"
+            element={<AdminEditUser />}
+          />
+
+          <Route
+            path="/admin/gigs"
+            element={<AdminGigs />}
+          />
+
+          <Route
+            path="/admin/bookings"
+            element={<AdminBookings />}
+          />
+
+          <Route
+            path="/admin/analytics"
+            element={<AdminAnalytics />}
+          />
+
+            <Route
+              path="/admin/api-usage"
+              element={<AdminApiUsage />}
+            />
+
           </Route>
         </Route>
 

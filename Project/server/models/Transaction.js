@@ -54,7 +54,16 @@ const transactionSchema = new mongoose.Schema(
             ],
             default: "pending"
         },
+        payoutDate: {
+            type: Date,
+            default: null
+        },
 
+        invoiceNumber: {
+            type: String,
+            default: ""
+        },
+        
         createdAt: {
             type: Date,
             default: Date.now

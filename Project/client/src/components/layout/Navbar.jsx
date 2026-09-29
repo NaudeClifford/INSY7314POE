@@ -22,7 +22,9 @@ function Navbar() {
 
                     {!user && (
                         <>
-                            <Link to="/login">Login</Link>
+                            <Link to="/login">
+                                Login
+                            </Link>
 
                             <Link
                                 to="/signup"
@@ -43,18 +45,34 @@ function Navbar() {
                                 Profile
                             </Link>
 
-                            {user.role === "freelancer" && (
+                            {user.role === "Freelancer" && (
                                 <>
                                     <Link to="/dashboard">
                                         Dashboard
+                                    </Link>
+
+                                    <Link to="/my-gigs">
+                                        My Gigs
                                     </Link>
 
                                     <Link to="/create-gig">
                                         Create Gig
                                     </Link>
 
+                                    <Link to="/income">
+                                        Income
+                                    </Link>
+
                                     <Link to="/transactions">
                                         Transactions
+                                    </Link>
+                                </>
+                            )}
+
+                            {user.role === "Admin" && (
+                                <>
+                                    <Link to="/admin">
+                                        Admin
                                     </Link>
                                 </>
                             )}

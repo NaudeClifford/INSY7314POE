@@ -48,7 +48,32 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    phone: {
+      type: String,
+      default: ""
+    },
 
+    location: {
+      type: String,
+      default: ""
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+
+    provider: {
+      type: String,
+      enum: ["local", "google", "microsoft"],
+      default: "local"
+    },
+
+    lastLogin: {
+      type: Date,
+      default: null
+    },
+    
     createdAt: {
       type: Date,
       default: Date.now
