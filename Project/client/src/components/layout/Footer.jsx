@@ -1,9 +1,11 @@
-import "./Footer"
+import "./Footer.css";
 
 function Footer() {
     return (
-        <footer>
-            <p>© 2026 HustleHub+</p>
+        <footer className="footer">
+            <div className="footer-container">
+                <p>© 2026 HustleHub+. All rights reserved.</p>
+            </div>
         </footer>
     );
 }

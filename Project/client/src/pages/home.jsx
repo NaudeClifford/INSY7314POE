@@ -1,4 +1,3 @@
-import "./Home.css"
 import Hero from "../components/common/Hero";
 
 function Home() {

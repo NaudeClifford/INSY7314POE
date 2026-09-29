@@ -7,6 +7,10 @@
     "test": "npm test --prefix server"
   },
   "devDependencies": {
-    "concurrently": "^10.0.4"
+    "concurrently": "^10.0.4",
+    "migrate-mongo": "^14.0.7"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.4"
   }
 }

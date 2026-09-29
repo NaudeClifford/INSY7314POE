@@ -8,6 +8,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "generate-cert": "node scripts/generateCertificate.js",
+    "seed": "node scripts/seed.js",
     "test": "node scripts/generateCertificate.js && node --test"
   },
   "dependencies": {
