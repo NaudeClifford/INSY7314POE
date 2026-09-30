@@ -74,7 +74,6 @@ function CreateGig() {
             setSuccess("Gig created successfully.");
 
             const createdGig = data.gig || data;
-
             const gigId = createdGig._id || createdGig.id;
 
             if (gigId) {
@@ -90,7 +89,6 @@ function CreateGig() {
 
     return (
         <main className="page-container">
-
             <div className="page-heading">
                 <h1>Create a Gig</h1>
                 <p>
@@ -115,7 +113,6 @@ function CreateGig() {
                 className="form-card"
                 onSubmit={handleSubmit}
             >
-
                 <div className="form-group">
                     <label htmlFor="title">
                         Gig Title
@@ -149,7 +146,6 @@ function CreateGig() {
                 </div>
 
                 <div className="form-row">
-
                     <div className="form-group">
                         <label htmlFor="category">
                             Category
@@ -183,7 +179,6 @@ function CreateGig() {
                             required
                         />
                     </div>
-
                 </div>
 
                 <div className="form-group">
@@ -205,7 +200,6 @@ function CreateGig() {
 
                 <div className="form-section">
                     <h2>Gig Location</h2>
-
                     <p>
                         This location will be associated with
                         the service.
@@ -245,7 +239,6 @@ function CreateGig() {
                 </div>
 
                 <div className="form-row">
-
                     <div className="form-group">
                         <label htmlFor="latitude">
                             Latitude
@@ -279,14 +272,11 @@ function CreateGig() {
                             required
                         />
                     </div>
-
                 </div>
 
-                <div className="form-actions">
-
+                <div  className="form-actions">
                     <button
                         type="button"
-                        className="secondary-button"
                         onClick={() => navigate("/dashboard")}
                         disabled={loading}
                     >
@@ -301,11 +291,8 @@ function CreateGig() {
                             ? "Creating Gig..."
                             : "Create Gig"}
                     </button>
-
                 </div>
-
             </form>
-
         </main>
     );
 }

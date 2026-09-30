@@ -1,7 +1,8 @@
 .navbar {
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 16px 20px;
+    background-image: url("/background3.webp");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
 }
 
 .navbar-container {
@@ -16,7 +17,7 @@
 .navbar-logo {
     font-size: 24px;
     font-weight: 700;
-    color: #2563eb;
+    color: white;
     text-decoration: none;
 }
 
@@ -27,34 +28,42 @@
 }
 
 .navbar-links a {
-    color: #334155;
+    color: white;
     text-decoration: none;
     font-weight: 500;
+    font-size: large;
 }
 
 .navbar-links a:hover {
-    color: #2563eb;
+    color: black;
+    background-color: white;
+    border-radius: 20px;
+    padding: 5px 10px;
 }
 
 .navbar-links .signup-link {
-    background: #2563eb;
-    color: white;
+    background: white;
+    color: black;
     padding: 9px 16px;
     border-radius: 7px;
 }
 
 .navbar-links .signup-link:hover {
-    color: white;
+    color: black;
+        background-color: white;
+        border-radius: 20px;
+    padding: 9px 16px;
 }
-
 .logout-button {
-    border: none;
-    background: transparent;
-    color: #334155;
-    font-weight: 500;
-    padding: 0;
+    background: white;
+        color: black;
+        padding: 9px 16px;
+        border-radius: 7px;
 }
 
 .logout-button:hover {
-    color: #2563eb;
-}
+    background: black;
+        color: white;
+        padding: 9px 16px;
+        border-radius: 7px;
+    }

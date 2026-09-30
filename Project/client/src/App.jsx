@@ -4,7 +4,7 @@ import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRoute from "./routes/RoleRoutes";
 
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Marketplace from "./pages/marketplace/Marketplace";
 import MyGigs from "./pages/gig/MyGigs";
 import GigDetails from "./pages/gig/GigDetails";

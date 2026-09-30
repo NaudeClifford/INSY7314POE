@@ -1,6 +1,8 @@
 .footer {
-    background: #0f172a;
-    color: white;
+    background-image: url("/background3.webp");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
     padding: 25px 20px;
 }
 
@@ -12,5 +14,6 @@
 
 .footer p {
     margin: 0;
-    color: #cbd5e1;
+    color: white;
+    font-size: 20px;
 }

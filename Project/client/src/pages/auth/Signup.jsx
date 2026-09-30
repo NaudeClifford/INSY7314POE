@@ -192,9 +192,9 @@ function Signup() {
                     </button>
                 </form>
 
-                <p>
+                <p className="auth-login">
                     Already have an account?{" "}
-                    <Link to="/login">
+                    <Link  to="/login">
                         Login
                     </Link>
                 </p>

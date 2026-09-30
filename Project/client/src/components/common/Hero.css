@@ -1,6 +1,10 @@
 .hero {
-    background: #f8fafc;
-    padding: 100px 20px;
+    background-image: url("/public/background1.webp");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+            padding: 100px 20px;
     text-align: center;
 }
 
@@ -12,13 +16,13 @@
 .hero h1 {
     font-size: 48px;
     margin-bottom: 20px;
-    color: #0f172a;
+    color: white;
 }
 
 .hero p {
     font-size: 20px;
     line-height: 1.6;
-    color: #475569;
+    color: white;
     margin-bottom: 35px;
 }
 
@@ -36,12 +40,12 @@
 }
 
 .hero-button.primary {
-    background: #2563eb;
+    background: red;
     color: white;
 }
 
 .hero-button.secondary {
     background: white;
-    color: #2563eb;
-    border: 1px solid #2563eb;
+    color: black;
+    border: 1px solid black;
 }
