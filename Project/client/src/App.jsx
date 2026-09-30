@@ -2,22 +2,22 @@ import { Routes, Route } from "react-router-dom";
 
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import RoleRoute from "./routes/RoleRoute";
+import RoleRoute from "./routes/RoleRoutes";
 
 import Home from "./pages/Home";
-import Marketplace from "./pages/Marketplace";
+import Marketplace from "./pages/marketplace/Marketplace";
 import MyGigs from "./pages/gig/MyGigs";
-import GigDetails from "./pages/GigDetails";
-import CreateGig from "./pages/CreateGig";
+import GigDetails from "./pages/gig/GigDetails";
+import CreateGig from "./pages/gig/CreateGig";
 import EditGig from "./pages/gig/EditGig";
-import Dashboard from "./pages/Dashboard";
-import Bookings from "./pages/Bookings";
-import Transactions from "./pages/Transactions";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Bookings from "./pages/bookings/Bookings";
+import Transactions from "./pages/transactions/Transactions";
 import Income from "./pages/transactions/Income";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import NotFound from "./pages/NotFound";
+import Profile from "./pages/profile/Profile";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import NotFound from "./pages/auth/NotFound";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
