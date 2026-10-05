@@ -18,7 +18,7 @@ function Bookings() {
                 setError("");
 
                 const response = await fetch(
-                    `${API_URL}/api/bookings`,
+                    `${API_URL}/api/bookings/my-bookings`,
                     {
                         method: "GET",
                         credentials: "include"
@@ -138,7 +138,7 @@ function Bookings() {
 
                         const gig =
                             booking.gigId &&
-                                typeof booking.gigId === "object"
+                            typeof booking.gigId === "object"
                                 ? booking.gigId
                                 : null;
 

@@ -3,12 +3,21 @@ const cors = require("cors");
 
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes"); 
+const bookingRoutes = require("./routes/bookingRoutes");
+const gigRoutes = require("./routes/gigRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
 
-// Applies shared middleware before requests reach any API route.
-app.use(cors());
+
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:3000"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -21,8 +30,12 @@ app.get("/api/test", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/gigs", gigRoutes);
+app.use("/api/transactions", transactionRoutes);
 
-// These must be registered after all valid routes.
+
 app.use(notFound);
 app.use(errorHandler);
 

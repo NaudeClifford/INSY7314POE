@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 
+// Inside server/config/database.js
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB Connected");
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    // Let the startup function report the failure without exposing connection details.
-    throw new Error("Unable to connect to MongoDB.");
+    console.error("MongoDB Connection Error Details:", error); // <-- Updated to show full error
+    process.exit(1);
   }
 };
 

@@ -1,42 +1,89 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function Dashboard() {
-    const [dashboard, setDashboard] = useState(null);
+    const { token } = useAuth() || {};
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    const [dashboard, setDashboard] = useState({
+        activeGigs: 0,
+        bookingsCount: 0,
+        grossIncome: 0,
+        platformFees: 0,
+        taxAmount: 0,
+        netIncome: 0,
+        recentBookings: []
+    });
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const API_URL = import.meta.env.VITE_API_URL;
+    function getAuthToken() {
+        return token || localStorage.getItem("token");
+    }
 
     useEffect(() => {
-        async function loadDashboard() {
+        async function loadDashboardData() {
             try {
                 setLoading(true);
                 setError("");
 
-                const response = await fetch(
-                    `${API_URL}/api/dashboard`,
-                    {
-                        credentials: "include"
-                    }
-                );
+                const authToken = getAuthToken();
+                const authHeaders = {
+                    "Content-Type": "application/json",
+                    ...(authToken && { Authorization: `Bearer ${authToken}` })
+                };
 
-                if (!response.ok) {
-                    throw new Error("Failed to load dashboard.");
-                }
+                // Fetch Gigs, Bookings, and Transactions concurrently
+                const [gigsRes, bookingsRes, txRes] = await Promise.all([
+                    fetch(`${API_URL}/api/gigs/my-gigs`, {
+                        credentials: "include",
+                        headers: authHeaders
+                    }).catch(() => null),
+                    fetch(`${API_URL}/api/bookings/my-bookings`, {
+                        credentials: "include",
+                        headers: authHeaders
+                    }).catch(() => null),
+                    fetch(`${API_URL}/api/transactions`, {
+                        credentials: "include",
+                        headers: authHeaders
+                    }).catch(() => null)
+                ]);
 
-                const data = await response.json();
+                // Parse responses
+                const gigsData = gigsRes && gigsRes.ok ? await gigsRes.json() : [];
+                const bookingsData = bookingsRes && bookingsRes.ok ? await bookingsRes.json() : [];
+                const txData = txRes && txRes.ok ? await txRes.json() : [];
 
-                setDashboard(data.dashboard || data);
+                const gigsList = Array.isArray(gigsData) ? gigsData : gigsData.gigs || [];
+                const bookingsList = Array.isArray(bookingsData) ? bookingsData : bookingsData.bookings || [];
+                const txList = Array.isArray(txData) ? txData : txData.transactions || [];
+
+                // Calculate gross income from successful transactions/bookings
+                const totalGross = txList.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+                const platformFees = totalGross * 0.1; // 10% platform fee
+                const taxAmount = totalGross * 0.15;   // 15% estimated tax
+                const netIncome = totalGross - platformFees - taxAmount;
+
+                setDashboard({
+                    activeGigs: gigsList.length,
+                    bookingsCount: bookingsList.length,
+                    grossIncome: totalGross,
+                    platformFees: Math.round(platformFees),
+                    taxAmount: Math.round(taxAmount),
+                    netIncome: Math.round(netIncome),
+                    recentBookings: bookingsList.slice(0, 5)
+                });
             } catch (err) {
-                console.error(err);
-                setError(err.message);
+                console.error("Dashboard calculation error:", err);
+                setError("Failed to load dashboard data.");
             } finally {
                 setLoading(false);
             }
         }
 
-        loadDashboard();
+        loadDashboardData();
     }, [API_URL]);
 
     if (loading) {
@@ -69,22 +116,22 @@ function Dashboard() {
 
                 <div className="stat-card">
                     <span>Active Gigs</span>
-                    <strong>{dashboard?.activeGigs ?? 0}</strong>
+                    <strong>{dashboard.activeGigs}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Bookings</span>
-                    <strong>{dashboard?.bookings ?? 0}</strong>
+                    <strong>{dashboard.bookingsCount}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Gross Income</span>
-                    <strong>R{dashboard?.grossIncome ?? 0}</strong>
+                    <strong>R{dashboard.grossIncome}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Estimated Tax</span>
-                    <strong>R{dashboard?.taxAmount ?? 0}</strong>
+                    <strong>R{dashboard.taxAmount}</strong>
                 </div>
 
             </div>
@@ -99,22 +146,22 @@ function Dashboard() {
 
                         <div>
                             <span>Gross Income</span>
-                            <strong>R{dashboard?.grossIncome ?? 0}</strong>
+                            <strong>R{dashboard.grossIncome}</strong>
                         </div>
 
                         <div>
                             <span>Platform Fees</span>
-                            <strong>R{dashboard?.platformFees ?? 0}</strong>
+                            <strong>R{dashboard.platformFees}</strong>
                         </div>
 
                         <div>
                             <span>Estimated Tax</span>
-                            <strong>R{dashboard?.taxAmount ?? 0}</strong>
+                            <strong>R{dashboard.taxAmount}</strong>
                         </div>
 
                         <div className="income-total">
                             <span>Estimated Net</span>
-                            <strong>R{dashboard?.netIncome ?? 0}</strong>
+                            <strong>R{dashboard.netIncome}</strong>
                         </div>
 
                     </div>
@@ -158,7 +205,7 @@ function Dashboard() {
 
                 <h2>Recent Activity</h2>
 
-                {!dashboard?.recentBookings?.length ? (
+                {!dashboard.recentBookings.length ? (
                     <p>No recent activity.</p>
                 ) : (
                     <div className="activity-list">
@@ -169,8 +216,8 @@ function Dashboard() {
                                 key={booking._id || booking.id}
                             >
                                 <div>
-                                    <strong>{booking.gigTitle}</strong>
-                                    <p>{booking.clientName}</p>
+                                    <strong>{booking.gigTitle || booking.gigId?.title || "Gig Booking"}</strong>
+                                    <p>{booking.clientName || booking.clientId?.name || "Client"}</p>
                                 </div>
 
                                 <span>

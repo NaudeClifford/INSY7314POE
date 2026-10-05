@@ -8,7 +8,7 @@ function Signup() {
         email: "",
         password: "",
         confirmPassword: "",
-        role: "client"
+        role: "Client" // Capitalized to match backend validation
     });
 
     const [error, setError] = useState("");
@@ -35,6 +35,9 @@ function Signup() {
 
         setLoading(true);
 
+        // Combine firstName and lastName into 'name' for backend validation
+        const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+
         try {
             const response = await fetch(
                 `${import.meta.env.VITE_API_URL}/api/auth/register`,
@@ -45,8 +48,7 @@ function Signup() {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        firstName: formData.firstName,
-                        lastName: formData.lastName,
+                        name: fullName, // Sent as 'name' to satisfy express-validator
                         email: formData.email,
                         password: formData.password,
                         role: formData.role
@@ -57,11 +59,13 @@ function Signup() {
             const data = await response.json();
 
             if (!response.ok) {
+                // If validation errors exist, display the first specific field message
+                if (data.errors && data.errors.length > 0) {
+                    throw new Error(data.errors[0].msg);
+                }
                 throw new Error(data.message || "Registration failed.");
             }
 
-            // We will decide the exact post-registration
-            // behavior when the API is ready.
             console.log("Registration successful:", data);
         } catch (err) {
             setError(err.message);
@@ -174,11 +178,11 @@ function Signup() {
                             value={formData.role}
                             onChange={handleChange}
                         >
-                            <option value="client">
+                            <option value="Client">
                                 Client
                             </option>
 
-                            <option value="freelancer">
+                            <option value="Freelancer">
                                 Freelancer
                             </option>
                         </select>
@@ -194,7 +198,7 @@ function Signup() {
 
                 <p className="auth-login">
                     Already have an account?{" "}
-                    <Link  to="/login">
+                    <Link to="/login">
                         Login
                     </Link>
                 </p>

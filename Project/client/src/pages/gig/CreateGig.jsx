@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function CreateGig() {
     const navigate = useNavigate();
+    const { token } = useAuth() || {};
 
     const [form, setForm] = useState({
         title: "",
@@ -22,6 +24,10 @@ function CreateGig() {
 
     const API_URL = import.meta.env.VITE_API_URL;
 
+    function getAuthToken() {
+        return token || localStorage.getItem("token");
+    }
+
     function handleChange(event) {
         const { name, value } = event.target;
 
@@ -39,13 +45,20 @@ function CreateGig() {
         setLoading(true);
 
         try {
+            const authToken = getAuthToken();
+
+            if (!authToken) {
+                throw new Error("You are not authenticated. Please log in again.");
+            }
+
             const response = await fetch(
                 `${API_URL}/api/gigs`,
                 {
                     method: "POST",
                     credentials: "include",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         title: form.title.trim(),
@@ -78,6 +91,8 @@ function CreateGig() {
 
             if (gigId) {
                 navigate(`/gigs/${gigId}`);
+            } else {
+                navigate("/my-gigs");
             }
         } catch (err) {
             console.error("Failed to create gig:", err);
@@ -274,7 +289,7 @@ function CreateGig() {
                     </div>
                 </div>
 
-                <div  className="form-actions">
+                <div className="form-actions">
                     <button
                         type="button"
                         onClick={() => navigate("/dashboard")}

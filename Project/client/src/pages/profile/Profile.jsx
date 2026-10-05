@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 function Profile() {
     const API_URL = import.meta.env.VITE_API_URL;
+    const { token } = useAuth() || {};
 
     const [form, setForm] = useState({
         name: "",
@@ -15,20 +17,32 @@ function Profile() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
+    // Retrieve JWT token from AuthContext or localStorage
+    function getAuthToken() {
+        return token || localStorage.getItem("token");
+    }
+
     useEffect(() => {
         async function loadProfile() {
             try {
                 setLoading(true);
+                const authToken = getAuthToken();
 
                 const response = await fetch(
                     `${API_URL}/api/users/profile`,
                     {
-                        credentials: "include"
+                        method: "GET",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...(authToken && { Authorization: `Bearer ${authToken}` })
+                        }
                     }
                 );
 
                 if (!response.ok) {
-                    throw new Error("Failed to load profile.");
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Failed to load profile.");
                 }
 
                 const data = await response.json();
@@ -38,7 +52,7 @@ function Profile() {
                     name: user.name || "",
                     email: user.email || "",
                     bio: user.bio || "",
-                    skills: (user.skills || []).join(", ")
+                    skills: Array.isArray(user.skills) ? user.skills.join(", ") : user.skills || ""
                 });
             } catch (err) {
                 console.error(err);
@@ -67,6 +81,7 @@ function Profile() {
             setSaving(true);
             setError("");
             setSuccess("");
+            const authToken = getAuthToken();
 
             const response = await fetch(
                 `${API_URL}/api/users/profile`,
@@ -74,7 +89,8 @@ function Profile() {
                     method: "PUT",
                     credentials: "include",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        ...(authToken && { Authorization: `Bearer ${authToken}` })
                     },
                     body: JSON.stringify({
                         name: form.name.trim(),
@@ -127,7 +143,7 @@ function Profile() {
                 <aside className="profile-sidebar">
 
                     <div className="profile-avatar">
-                        {form.name.charAt(0).toUpperCase()}
+                        {form.name ? form.name.charAt(0).toUpperCase() : "U"}
                     </div>
 
                     <h2>{form.name}</h2>
