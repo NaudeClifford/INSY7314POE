@@ -5,7 +5,39 @@
 - ST10438433 Caleb Forbes Group 1
 - ST10437348 Alexandro Ornelas Group 1
 
-POE PART 1 
+POE PART 2
+# Startup Information
+1. Install Dependencies
+Run the install command from the main root directory to download all required packages:
+
+cd Project
+npm install
+
+2. Environment Configuration (.env Files)
+Create two separate .env files with the configuration values below.
+
+Backend Environment File
+Create a .env file inside the server/ directory (server/.env):
+Code snippet:
+PORT=5000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/hustlehub
+JWT_SECRET=your_jwt_secret_here
+
+
+Frontend Environment File
+Create a .env file inside the client/src/ directory (client/src/.env):
+
+Code snippet:
+VITE_API_URL=http://localhost:5000
+
+
+
+3. Running the Application
+From the root project directory, run a single command to start both the frontend and backend simultaneously:
+
+cd Project
+npm run dev
+Frontend App: http://localhost:5173
 
 ## ARCHITECTURE
 
