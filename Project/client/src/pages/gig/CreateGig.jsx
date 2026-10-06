@@ -51,6 +51,41 @@ function CreateGig() {
                 throw new Error("You are not authenticated. Please log in again.");
             }
 
+            // Safely parse numeric fields
+            const parsedPrice = parseFloat(form.price);
+            const parsedDeliveryDays = parseInt(form.deliveryDays, 10);
+            const parsedLat = parseFloat(form.latitude);
+            const parsedLng = parseFloat(form.longitude);
+
+            if (isNaN(parsedPrice) || parsedPrice < 0) {
+                throw new Error("Please enter a valid price.");
+            }
+
+            if (isNaN(parsedDeliveryDays) || parsedDeliveryDays < 1) {
+                throw new Error("Delivery days must be at least 1.");
+            }
+
+            if (isNaN(parsedLat) || isNaN(parsedLng)) {
+                throw new Error("Please enter valid numeric latitude and longitude values.");
+            }
+
+            const payload = {
+                title: form.title.trim(),
+                description: form.description.trim(),
+                category: form.category.trim(),
+                price: parsedPrice,
+                deliveryDays: parsedDeliveryDays,
+                location: {
+                    address: form.address.trim(),
+                    placeId: form.placeId.trim() || "default_place_id",
+                    latitude: parsedLat,
+                    longitude: parsedLng
+                }
+            };
+
+            // Log the payload to browser console
+            console.log("Creating Gig Payload:", payload);
+
             const response = await fetch(
                 `${API_URL}/api/gigs`,
                 {
@@ -60,19 +95,7 @@ function CreateGig() {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${authToken}`
                     },
-                    body: JSON.stringify({
-                        title: form.title.trim(),
-                        description: form.description.trim(),
-                        category: form.category.trim(),
-                        price: Number(form.price),
-                        deliveryDays: Number(form.deliveryDays),
-                        location: {
-                            address: form.address.trim(),
-                            placeId: form.placeId.trim(),
-                            latitude: Number(form.latitude),
-                            longitude: Number(form.longitude)
-                        }
-                    })
+                    body: JSON.stringify(payload)
                 }
             );
 
@@ -107,8 +130,7 @@ function CreateGig() {
             <div className="page-heading">
                 <h1>Create a Gig</h1>
                 <p>
-                    Create a service that clients can discover
-                    and book.
+                    Create a service that clients can discover and book.
                 </p>
             </div>
 
@@ -216,8 +238,7 @@ function CreateGig() {
                 <div className="form-section">
                     <h2>Gig Location</h2>
                     <p>
-                        This location will be associated with
-                        the service.
+                        This location will be associated with the service.
                     </p>
                 </div>
 

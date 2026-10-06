@@ -7,7 +7,9 @@ const adminRoutes = require("./routes/adminRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const gigRoutes = require("./routes/gigRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const incomeRoutes = require("./routes/incomeRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+
 
 const app = express();
 
@@ -33,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/gigs", gigRoutes);
+app.use("/api/income", incomeRoutes);
 app.use("/api/transactions", transactionRoutes);
 
 

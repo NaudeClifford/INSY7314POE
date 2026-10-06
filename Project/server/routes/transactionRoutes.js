@@ -7,9 +7,12 @@ const {
   processPayout
 } = require("../controllers/transactionController");
 
-router.post("/", createTransaction);
-router.get("/my-transactions", getMyTransactions);
-router.get("/:id", getTransactionById);
-router.patch("/:id/payout", processPayout);
+const { protect } = require("../middleware/authMiddleware");
+
+// Protect all user transaction endpoints
+router.post("/", protect, createTransaction);
+router.get("/my-transactions", protect, getMyTransactions);
+router.get("/:id", protect, getTransactionById);
+router.patch("/:id/payout", protect, processPayout);
 
 module.exports = router;

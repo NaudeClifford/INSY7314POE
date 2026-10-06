@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 function Transactions() {
     const [transactions, setTransactions] = useState([]);
@@ -13,6 +14,11 @@ function Transactions() {
     const [error, setError] = useState("");
 
     const API_URL = import.meta.env.VITE_API_URL;
+    const { token } = useAuth() || {};
+
+    function getAuthToken() {
+        return token || localStorage.getItem("token");
+    }
 
     useEffect(() => {
         async function loadTransactions() {
@@ -20,20 +26,29 @@ function Transactions() {
                 setLoading(true);
                 setError("");
 
+                const authToken = getAuthToken();
+
+                // Fixed endpoint to /api/transactions/my-transactions and added Authorization header
                 const response = await fetch(
-                    `${API_URL}/api/transactions`,
+                    `${API_URL}/api/transactions/my-transactions`,
                     {
-                        credentials: "include"
+                        method: "GET",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...(authToken && { Authorization: `Bearer ${authToken}` })
+                        }
                     }
                 );
 
                 if (!response.ok) {
-                    throw new Error("Failed to load transactions.");
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Failed to load transactions.");
                 }
 
                 const data = await response.json();
 
-                const list = data.transactions || data;
+                const list = data.transactions || data || [];
 
                 setTransactions(list);
 
@@ -63,6 +78,7 @@ function Transactions() {
     }, [API_URL]);
 
     function formatDate(date) {
+        if (!date) return "N/A";
         return new Date(date).toLocaleDateString("en-ZA", {
             year: "numeric",
             month: "short",

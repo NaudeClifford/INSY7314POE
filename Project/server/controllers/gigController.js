@@ -6,7 +6,6 @@ exports.getGigs = async (req, res, next) => {
   try {
     const { search, category, minPrice, maxPrice } = req.query;
 
-    // Filter to only active gigs
     let query = { status: "active", isActive: true };
 
     if (search) {
@@ -33,13 +32,13 @@ exports.getGigs = async (req, res, next) => {
   }
 };
 
-// @desc    Get single gig by ID (and increment view count)
+// @desc    Get single gig by ID
 // @route   GET /api/gigs/:id
 exports.getGigById = async (req, res, next) => {
   try {
     const gig = await Gig.findByIdAndUpdate(
       req.params.id,
-      { $inc: { views: 1 } }, // Automatically increment views on fetch
+      { $inc: { views: 1 } },
       { new: true }
     ).populate("freelancerId", "name email profilePicture bio location rating");
 
@@ -68,7 +67,12 @@ exports.createGig = async (req, res, next) => {
       weather
     } = req.body;
 
-    const freelancerId = req.user?._id || req.body.freelancerId;
+    // Fixed: Supports both req.user.id and req.user._id
+    const freelancerId = req.user?.id || req.user?._id || req.body.freelancerId;
+
+    if (!freelancerId) {
+      return res.status(400).json({ message: "Freelancer ID is required." });
+    }
 
     const gig = await Gig.create({
       freelancerId,
@@ -108,7 +112,7 @@ exports.updateGig = async (req, res, next) => {
   }
 };
 
-// @desc    Delete (or soft-delete) a gig
+// @desc    Delete a gig
 // @route   DELETE /api/gigs/:id
 exports.deleteGig = async (req, res, next) => {
   try {
@@ -128,7 +132,8 @@ exports.deleteGig = async (req, res, next) => {
 // @route   GET /api/gigs/my-gigs
 exports.getMyGigs = async (req, res, next) => {
   try {
-    const freelancerId = req.user?._id || req.query.freelancerId;
+    // Fixed: Supports both req.user.id and req.user._id
+    const freelancerId = req.user?.id || req.user?._id || req.query.freelancerId;
 
     const gigs = await Gig.find({ freelancerId }).sort({ createdAt: -1 });
 

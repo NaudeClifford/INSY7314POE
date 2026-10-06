@@ -40,7 +40,7 @@ exports.createTransaction = async (req, res, next) => {
 // @route   GET /api/transactions/my-transactions
 exports.getMyTransactions = async (req, res, next) => {
   try {
-    const userId = req.user?._id || req.query.userId;
+    const userId = req.user?.id || req.user?._id || req.query.userId;
 
     const transactions = await Transaction.find({
       $or: [{ clientId: userId }, { freelancerId: userId }]

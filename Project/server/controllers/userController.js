@@ -38,7 +38,8 @@ const createUser = async (req, res, next) => {
 // GET CURRENT USER PROFILE
 const getUserProfile = async (req, res, next) => {
   try {
-    const userId = req.user?._id || req.query.userId;
+    // Support both req.user.id and req.user._id
+    const userId = req.user?.id || req.user?._id || req.query.userId;
 
     const user = await User.findById(userId).select("-password");
 
@@ -55,7 +56,8 @@ const getUserProfile = async (req, res, next) => {
 // UPDATE USER PROFILE
 const updateUserProfile = async (req, res, next) => {
   try {
-    const userId = req.user?._id || req.body.userId;
+    // Support both req.user.id and req.user._id
+    const userId = req.user?.id || req.user?._id || req.body.userId;
     const { name, phone, bio, skills, location, profilePicture } = req.body;
 
     const user = await User.findById(userId);
