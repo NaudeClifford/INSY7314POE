@@ -51,7 +51,7 @@ async function seedDatabase() {
             role: "Freelancer",
             provider: "local",
             isActive: true,
-            bio: "Web developer specialising in modern websites.",
+            bio: "Web developer specializing in modern websites.",
             skills: [
                 "React",
                 "JavaScript",
@@ -66,7 +66,7 @@ async function seedDatabase() {
             role: "Freelancer",
             provider: "local",
             isActive: true,
-            bio: "Graphic designer specialising in branding.",
+            bio: "Graphic designer specializing in branding.",
             skills: [
                 "Graphic Design",
                 "Logo Design",

@@ -89,13 +89,27 @@ function Marketplace() {
     return (
         <main className="page-container">
 
-            <div className="marketplace-header">
-                <div>
-                    <h1>Marketplace</h1>
+                        <div className="marketplace-hero">
+                <div className="marketplace-hero-content">
+                    <span className="marketplace-eyebrow">
+                        HUSTLEHUB+ MARKETPLACE
+                    </span>
+
+                    <h1>
+                        Find the right talent
+                        <span> for your next project.</span>
+                    </h1>
+
                     <p>
-                        Find freelancers and services for your
-                        next project.
+                        Discover talented freelancers offering services
+                        across design, development, writing, marketing and more.
                     </p>
+                </div>
+
+                <div className="marketplace-hero-accent">
+                    <span>✦</span>
+                    <strong>{gigs.length}</strong>
+                    <small>services available</small>
                 </div>
             </div>
 

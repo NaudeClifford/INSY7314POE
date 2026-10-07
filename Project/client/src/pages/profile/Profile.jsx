@@ -3,10 +3,10 @@ import { useAuth } from "../../context/AuthContext";
 
 function Profile() {
     const API_URL = import.meta.env.VITE_API_URL;
-    const { token } = useAuth() || {};
+    const { token, user } = useAuth() || {};
 
     const [form, setForm] = useState({
-        name: "",
+        fullName: "",
         email: "",
         bio: "",
         skills: ""
@@ -17,83 +17,104 @@ function Profile() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    // Retrieve JWT token from AuthContext or localStorage
-    function getAuthToken() {
+    // Get JWT from AuthContext first, then localStorage as fallback.
+    const getAuthToken = () => {
         return token || localStorage.getItem("token");
-    }
+    };
 
     useEffect(() => {
-        async function loadProfile() {
+        const loadProfile = async () => {
+            const authToken = getAuthToken();
+
+            if (!authToken) {
+                setError("You must be logged in to view your profile.");
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
-                const authToken = getAuthToken();
+                setError("");
 
                 const response = await fetch(
                     `${API_URL}/api/users/profile`,
                     {
                         method: "GET",
-                        credentials: "include",
                         headers: {
-                            "Content-Type": "application/json",
-                            ...(authToken && { Authorization: `Bearer ${authToken}` })
+                            Authorization: `Bearer ${authToken}`
                         }
                     }
                 );
 
+                const data = await response.json().catch(() => ({}));
+
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Failed to load profile.");
+                    throw new Error(
+                        data.error ||
+                        data.message ||
+                        "Failed to load profile."
+                    );
                 }
 
-                const data = await response.json();
-                const user = data.user || data;
+                const profile = data.data || data.user || data;
 
                 setForm({
-                    name: user.name || "",
-                    email: user.email || "",
-                    bio: user.bio || "",
-                    skills: Array.isArray(user.skills) ? user.skills.join(", ") : user.skills || ""
+                    fullName: profile.fullName || "",
+                    email: profile.email || "",
+                    bio: profile.bio || "",
+                    skills: Array.isArray(profile.skills)
+                        ? profile.skills.join(", ")
+                        : profile.skills || ""
                 });
             } catch (err) {
-                console.error(err);
+                console.error("Profile loading error:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
-        }
+        };
 
         loadProfile();
-    }, [API_URL]);
+    }, [API_URL, token]);
 
-    function handleChange(event) {
+    const handleChange = (event) => {
         const { name, value } = event.target;
 
         setForm((current) => ({
             ...current,
             [name]: value
         }));
-    }
 
-    async function handleSubmit(event) {
+        // Clear messages when the user starts editing.
+        setError("");
+        setSuccess("");
+    };
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
+
+        const authToken = getAuthToken();
+
+        if (!authToken) {
+            setError("Your session has expired. Please log in again.");
+            return;
+        }
 
         try {
             setSaving(true);
             setError("");
             setSuccess("");
-            const authToken = getAuthToken();
 
             const response = await fetch(
                 `${API_URL}/api/users/profile`,
                 {
                     method: "PUT",
-                    credentials: "include",
                     headers: {
                         "Content-Type": "application/json",
-                        ...(authToken && { Authorization: `Bearer ${authToken}` })
+                        Authorization: `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
-                        name: form.name.trim(),
+                        fullName: form.fullName.trim(),
                         bio: form.bio.trim(),
                         skills: form.skills
                             .split(",")
@@ -103,26 +124,44 @@ function Profile() {
                 }
             );
 
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
-                throw new Error(data.message || "Failed to update profile.");
+                throw new Error(
+                    data.error ||
+                    data.message ||
+                    "Failed to update profile."
+                );
             }
+
+            // Update the displayed data with the response from the server.
+            const updatedUser = data.data || data.user || data;
+
+            setForm((current) => ({
+                ...current,
+                fullName: updatedUser.fullName || current.fullName,
+                bio: updatedUser.bio || "",
+                skills: Array.isArray(updatedUser.skills)
+                    ? updatedUser.skills.join(", ")
+                    : current.skills
+            }));
 
             setSuccess("Profile updated successfully.");
         } catch (err) {
-            console.error(err);
+            console.error("Profile update error:", err);
             setError(err.message);
         } finally {
             setSaving(false);
         }
-    }
+    };
 
     if (loading) {
         return (
             <main className="page-container">
-                <h1>Profile</h1>
-                <p>Loading profile...</p>
+                <div className="page-heading">
+                    <h1>My Profile</h1>
+                    <p>Loading your profile...</p>
+                </div>
             </main>
         );
     }
@@ -135,20 +174,37 @@ function Profile() {
                 <p>Manage your HustleHub+ account information.</p>
             </div>
 
-            {error && <div className="form-error">{error}</div>}
-            {success && <div className="form-success">{success}</div>}
+            {error && (
+                <div className="form-error" role="alert">
+                    {error}
+                </div>
+            )}
+
+            {success && (
+                <div className="form-success" role="status">
+                    {success}
+                </div>
+            )}
 
             <div className="profile-layout">
 
                 <aside className="profile-sidebar">
 
                     <div className="profile-avatar">
-                        {form.name ? form.name.charAt(0).toUpperCase() : "U"}
+                        {form.fullName
+                            ? form.fullName.charAt(0).toUpperCase()
+                            : "U"}
                     </div>
 
-                    <h2>{form.name}</h2>
+                    <h2>{form.fullName || "User"}</h2>
 
                     <p>{form.email}</p>
+
+                    {user?.role && (
+                        <span className="profile-role">
+                            {user.role}
+                        </span>
+                    )}
 
                     <div className="connected-accounts">
 
@@ -170,31 +226,43 @@ function Profile() {
                 >
 
                     <div className="form-group">
-                        <label htmlFor="name">Full Name</label>
+                        <label htmlFor="fullName">
+                            Full Name
+                        </label>
 
                         <input
-                            id="name"
-                            name="name"
+                            id="fullName"
+                            name="fullName"
                             type="text"
-                            value={form.name}
+                            value={form.fullName}
                             onChange={handleChange}
                             required
+                            minLength={2}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email">
+                            Email
+                        </label>
 
                         <input
                             id="email"
+                            name="email"
                             type="email"
                             value={form.email}
                             disabled
                         />
+
+                        <small>
+                            Email addresses cannot be changed here.
+                        </small>
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="bio">Bio</label>
+                        <label htmlFor="bio">
+                            Bio
+                        </label>
 
                         <textarea
                             id="bio"
@@ -202,13 +270,14 @@ function Profile() {
                             rows="5"
                             value={form.bio}
                             onChange={handleChange}
+                            maxLength={500}
                             placeholder="Tell clients about yourself..."
                         />
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="skills">
-                            Skills (comma separated)
+                            Skills
                         </label>
 
                         <input
@@ -219,6 +288,10 @@ function Profile() {
                             onChange={handleChange}
                             placeholder="React, JavaScript, UI Design"
                         />
+
+                        <small>
+                            Separate each skill with a comma.
+                        </small>
                     </div>
 
                     <div className="form-actions">
@@ -226,7 +299,9 @@ function Profile() {
                             type="submit"
                             disabled={saving}
                         >
-                            {saving ? "Saving..." : "Save Changes"}
+                            {saving
+                                ? "Saving..."
+                                : "Save Changes"}
                         </button>
                     </div>
 

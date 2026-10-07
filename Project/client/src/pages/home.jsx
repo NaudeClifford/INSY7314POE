@@ -1,80 +1,197 @@
 import Hero from "../components/common/Hero";
 
 function Home() {
+    const features = [
+        {
+            number: "01",
+            title: "Find Freelancers",
+            description:
+                "Browse skilled freelancers and find the right person for your project."
+        },
+        {
+            number: "02",
+            title: "Manage Projects",
+            description:
+                "Keep your bookings, projects and communication organised in one place."
+        },
+        {
+            number: "03",
+            title: "Track Your Income",
+            description:
+                "Monitor your earnings, bookings and estimated tax from your dashboard."
+        }
+    ];
+
+    const categories = [
+        {
+            title: "Design",
+            description: "Logos, graphics and creative design."
+        },
+        {
+            title: "Development",
+            description: "Websites, applications and software."
+        },
+        {
+            title: "Writing",
+            description: "Articles, copywriting and content."
+        },
+        {
+            title: "Marketing",
+            description: "Social media and digital marketing."
+        },
+        {
+            title: "Photography",
+            description: "Professional photography services."
+        },
+        {
+            title: "Video Editing",
+            description: "Video production and editing services."
+        }
+    ];
+
     return (
-        <>
+        <main className="main home-page">
             <Hero />
 
             <section className="features">
                 <div className="section-container">
-                    <h2>Why Use HustleHub+?</h2>
+                    <div className="section-heading">
+                        <span className="section-eyebrow">
+                            WHY HUSTLEHUB+
+                        </span>
+
+                        <h2>
+                            Everything you need to
+                            <span> build your hustle.</span>
+                        </h2>
+
+                        <p>
+                            Find opportunities, manage your work and keep
+                            track of your freelance business from one place.
+                        </p>
+                    </div>
 
                     <div className="feature-grid">
-                        <div className="feature-card">
-                            <h3>Find Freelancers</h3>
-                            <p>
-                                Browse talented freelancers and find the right
-                                person for your project.
-                            </p>
-                        </div>
+                        {features.map((feature) => (
+                            <article
+                                className="feature-card"
+                                key={feature.number}
+                            >
 
-                        <div className="feature-card">
-                            <h3>Manage Projects</h3>
-                            <p>
-                                Keep track of your bookings and freelance
-                                projects in one place.
-                            </p>
-                        </div>
+                                <h3>{feature.title}</h3>
 
-                        <div className="feature-card">
-                            <h3>Track Your Income</h3>
-                            <p>
-                                Freelancers can monitor their earnings,
-                                bookings, and estimated tax.
-                            </p>
-                        </div>
+                                <p>{feature.description}</p>
+
+                                <span className="feature-arrow">
+                                    →
+                                </span>
+                            </article>
+                        ))}
                     </div>
                 </div>
             </section>
 
             <section className="categories">
                 <div className="section-container">
-                    <h2>Popular Categories</h2>
+                    <div className="section-heading">
+                        <span className="section-eyebrow">
+                            EXPLORE SERVICES
+                        </span>
+
+                        <h2>Find the right talent.</h2>
+
+                        <p>
+                            Explore popular freelance categories and discover
+                            professionals ready to help with your next project.
+                        </p>
+                    </div>
 
                     <div className="category-grid">
-                        <div className="category-card">
-                            <h3>Design</h3>
-                            <p>Logos, graphics and creative design.</p>
+                        {categories.map((category) => (
+                            <article
+                                className="category-card"
+                                key={category.title}
+                            >
+                                <div className="category-icon">
+                                    {category.title.charAt(0)}
+                                </div>
+
+                                <div>
+                                    <h3>{category.title}</h3>
+                                    <p>{category.description}</p>
+                                </div>
+
+                                <span className="category-arrow">
+                                    →
+                                </span>
+                            </article>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="how-it-works">
+                <div className="section-container">
+                    <div className="section-heading">
+                        <span className="section-eyebrow">
+                            HOW IT WORKS
+                        </span>
+
+                        <h2>Start hustling in three steps.</h2>
+                    </div>
+
+                    <div className="steps-grid">
+                        <div className="step">
+                            <span>01</span>
+                            <h3>Create your profile</h3>
+                            <p>
+                                Tell clients what you do, what you offer and
+                                what makes you different.
+                            </p>
                         </div>
 
-                        <div className="category-card">
-                            <h3>Development</h3>
-                            <p>Websites, applications and software.</p>
+                        <div className="step">
+                            <span>02</span>
+                            <h3>Find or create work</h3>
+                            <p>
+                                Discover freelance opportunities or publish
+                                your own services.
+                            </p>
                         </div>
 
-                        <div className="category-card">
-                            <h3>Writing</h3>
-                            <p>Articles, copywriting and content.</p>
-                        </div>
-
-                        <div className="category-card">
-                            <h3>Marketing</h3>
-                            <p>Social media and digital marketing.</p>
-                        </div>
-
-                        <div className="category-card">
-                            <h3>Photography</h3>
-                            <p>Professional photography services.</p>
-                        </div>
-
-                        <div className="category-card">
-                            <h3>Video Editing</h3>
-                            <p>Video production and editing services.</p>
+                        <div className="step">
+                            <span>03</span>
+                            <h3>Get things done</h3>
+                            <p>
+                                Manage bookings, complete projects and track
+                                your earnings.
+                            </p>
                         </div>
                     </div>
                 </div>
             </section>
-        </>
+
+            <section className="home-cta">
+                <div className="section-container">
+                    <div className="cta-card">
+                        <span className="section-eyebrow">
+                            READY TO GET STARTED?
+                        </span>
+
+                        <h2>Turn your skills into opportunities.</h2>
+
+                        <p>
+                            Join HustleHub+ and start building your freelance
+                            career today.
+                        </p>
+
+                        <button className="button cta-button">
+                            Get Started →
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
     );
 }
 
