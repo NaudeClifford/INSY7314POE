@@ -2034,7 +2034,175 @@ table tbody tr:hover {
   color: var(--color-muted) !important;
 }
 
+/*admin api usage*/
+.admin-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
 
+.admin-filters .form-group {
+    flex: 1;
+    min-width: 220px;
+}
+
+.secondary-button {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+}
+
+.api-chart {
+    display: flex;
+    align-items: end;
+    gap: 1.5rem;
+    min-height: 260px;
+    padding: 2rem 1rem 1rem;
+    overflow-x: auto;
+}
+
+.api-chart-column {
+    min-width: 70px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.api-chart-value {
+    font-weight: 600;
+}
+
+.api-chart-bar {
+    width: 40px;
+    min-height: 8px;
+    border-radius: 4px 4px 0 0;
+    background: var(--primary-color);
+}
+
+.api-chart-label {
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+.admin-filters {
+    display: flex;
+    align-items: end;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.admin-filters .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.secondary-button {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+}
+
+.panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.panel-heading h2 {
+    margin-bottom: 0.25rem;
+}
+
+.panel-heading p {
+    margin: 0;
+}
+
+.api-line-chart {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.api-line-chart svg {
+    width: 100%;
+    min-width: 700px;
+    height: 320px;
+    display: block;
+}
+
+.chart-grid-line {
+    stroke: currentColor;
+    opacity: 0.12;
+}
+
+.chart-axis-label {
+    fill: currentColor;
+    font-size: 11px;
+}
+
+.chart-line-total,
+.chart-line-success,
+.chart-line-failed {
+    stroke-width: 3;
+    vector-effect: non-scaling-stroke;
+}
+
+.chart-line-total {
+    stroke: #2563eb;
+}
+
+.chart-line-success {
+    stroke: #16a34a;
+}
+
+.chart-line-failed {
+    stroke: #dc2626;
+}
+
+.chart-point-total {
+    fill: #2563eb;
+}
+
+.chart-point-success {
+    fill: #16a34a;
+}
+
+.chart-point-failed {
+    fill: #dc2626;
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.chart-legend span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.chart-legend i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-total {
+    background: #2563eb;
+}
+
+.legend-success {
+    background: #16a34a;
+}
+
+.legend-failed {
+    background: #dc2626;
+}
 /* PROFILE */
 
 .profile-layout {

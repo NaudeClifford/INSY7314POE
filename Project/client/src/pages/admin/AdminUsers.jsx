@@ -104,7 +104,7 @@ function AdminUsers() {
 
         try {
             const response = await fetch(
-                `${API_URL}/api/users/${userId}`,
+                `${API_URL}/api/admin/users/${userId}`,
                 {
                     method: "DELETE",
                     credentials: "include"

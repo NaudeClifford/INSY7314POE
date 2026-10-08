@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 function AdminDashboard() {
     const API_URL = import.meta.env.VITE_API_URL;
@@ -17,7 +18,7 @@ function AdminDashboard() {
 
         try {
             const response = await fetch(
-                `${API_URL}/api/admin/dashboard`,
+                `${API_URL}/api/admin/`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -192,8 +193,8 @@ function AdminDashboard() {
                 </div>
 
                 <div className="admin-management-grid">
-                    <a
-                        href="/admin/users"
+                    <Link
+                        to="/admin/users"
                         className="admin-management-card"
                     >
                         <h3>User Management</h3>
@@ -202,10 +203,10 @@ function AdminDashboard() {
                             View, edit, disable and delete
                             user accounts.
                         </p>
-                    </a>
+                    </Link>
 
-                    <a
-                        href="/admin/gigs"
+                    <Link
+                        to="/admin/gigs"
                         className="admin-management-card"
                     >
                         <h3>Gig Management</h3>
@@ -214,10 +215,10 @@ function AdminDashboard() {
                             Review and manage gigs created
                             by freelancers.
                         </p>
-                    </a>
+                    </Link>
 
-                    <a
-                        href="/admin/bookings"
+                    <Link
+                        to="/admin/bookings"
                         className="admin-management-card"
                     >
                         <h3>Booking Management</h3>
@@ -226,10 +227,10 @@ function AdminDashboard() {
                             View and manage platform
                             bookings.
                         </p>
-                    </a>
+                    </Link>
 
-                    <a
-                        href="/admin/analytics"
+                    <Link
+                        to="/admin/analytics"
                         className="admin-management-card"
                     >
                         <h3>Analytics</h3>
@@ -238,10 +239,10 @@ function AdminDashboard() {
                             View platform usage and
                             business statistics.
                         </p>
-                    </a>
+                    </Link>
 
-                    <a
-                        href="/admin/api-usage"
+                    <Link
+                        to="/admin/api-usage"
                         className="admin-management-card"
                     >
                         <h3>API Usage</h3>
@@ -250,7 +251,7 @@ function AdminDashboard() {
                             Monitor API requests,
                             failures and response times.
                         </p>
-                    </a>
+                    </Link>
                 </div>
             </section>
         </main>

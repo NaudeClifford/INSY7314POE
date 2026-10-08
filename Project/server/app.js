@@ -11,6 +11,7 @@ const transactionRoutes = require("./routes/transactionRoutes");
 const incomeRoutes = require("./routes/incomeRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
+const apiUsageMiddleware = require("./middleware/apiUsageMiddleware");
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(apiUsageMiddleware);
 
 app.get("/", (req, res) => {
   res.json({ message: "API Running" });

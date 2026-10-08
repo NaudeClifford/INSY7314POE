@@ -1,4 +1,321 @@
 const Gig = require("../models/Gig");
+const User = require("../models/User");
+const Booking = require("../models/Booking");
+const ApiUsage = require("../models/ApiUsage");
+const Transaction = require("../models/Transaction");
+
+//Admin dashboard
+exports.getAdminDashboard = async(req, res, next) => {
+  try{
+    const[
+      totalUsers, totalFreelancers, totalClients,
+      activeGigs, totalBookings, completedBookings, apiRequests, revenueResult
+    ] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({role: "Freelancer"}),
+      User.countDocuments({role: "Client"}),
+      Gig.countDocuments({status: "active"}),
+      Booking.countDocuments(),
+      Booking.countDocuments({status: "completed"}),
+      ApiUsage.countDocuments(),
+      Transaction.aggregate([
+                {
+                    $match: {
+                        status: "completed"
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalRevenue: {
+                            $sum: "$platformFee"
+                        }
+                    }
+                }
+            ])
+    ]);
+const platformRevenue = revenueResult.length >0 ? revenueResult[0].totalRevenue : 0;
+
+    res.status(200).json({
+      dashboard: {
+        totalUsers, totalFreelancers, totalClients
+        ,activeGigs, totalBookings, completedBookings, platformRevenue: platformRevenue,
+        apiRequests: apiRequests
+      }
+    });
+  }catch(error){next(error);}
+};
+
+//Get all users
+exports.getAdminUsers = async (req, res, next)=>{
+  try{
+    const users = await User.find().select("_id name email provider isActive createdAt")
+    .sort({createdAt: -1});
+
+    res.status(200).json({users});
+  }
+  catch(error){next(error);}
+}
+
+// Get one user
+
+exports.getAdminUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await User.findById(id)
+            .select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found."
+            });
+        }
+
+        res.status(200).json({
+            user
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+//Update user
+exports.updateAdminUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const {
+            name,
+            email,
+            role,
+            bio,
+            skills,
+            isActive
+        } = req.body;
+
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found."
+            });
+        }
+
+        // Prevent admin from changing their own
+        // account into another role accidentally.
+        if (
+            req.user.id.toString() ===
+            user._id.toString() &&
+            role &&
+            role !== "Admin"
+        ) {
+            return res.status(400).json({
+                message:
+                    "You cannot remove your own Admin role."
+            });
+        }
+
+        if (name !== undefined) {
+            user.name = name.trim();
+        }
+
+        if (email !== undefined) {
+            user.email = email.trim().toLowerCase();
+        }
+
+        if (role !== undefined) {
+            user.role = role;
+        }
+
+        if (bio !== undefined) {
+            user.bio = bio;
+        }
+
+        if (skills !== undefined) {
+            user.skills = skills;
+        }
+
+        if (isActive !== undefined) {
+            user.isActive = isActive;
+        }
+
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            message: "User updated successfully.",
+            user: {
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                bio: updatedUser.bio,
+                skills: updatedUser.skills,
+                isActive: updatedUser.isActive
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+//Analytics
+exports.getAdminAnalytics = async (req, res, next) => {
+    try {
+      const [
+            totalUsers,
+            totalBookings,
+            apiRequests,
+            revenueResult
+          ] = await Promise.all([
+            User.countDocuments(),
+            Booking.countDocuments(),
+            ApiUsage.countDocuments(),
+            Transaction.aggregate([
+              {
+                $match:{status: "completed"}
+              },
+              {
+                $group: {_id: null, totalRevenue: {$sum: "$platformFee"}}
+              }
+          ])
+        ]);
+
+        const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+        const analytics = [
+            {
+                date: new Date(),
+                activeUsers: totalUsers,
+                apiRequests,
+                bookings: totalBookings,
+                revenue: totalRevenue
+            }
+        ];
+
+        res.status(200).json({
+            analytics
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+//Api usage
+exports.getAdminApiUsage = async (req, res, next) => {
+    try {
+      
+        const usage = await ApiUsage.find()
+            .sort({ date: -1 })
+            .limit(500);
+
+        const groupedUsage = {};
+
+        usage.forEach((item) => {
+            const date = item.date
+                .toISOString()
+                .split("T")[0];
+
+            const key = `${date}-${item.method}-${item.endpoint}`;
+
+            if (!groupedUsage[key]) {
+                groupedUsage[key] = {
+                    date: item.date,
+                    endpoint: item.endpoint,
+                    method: item.method,
+                    requests: 0,
+                    successful: 0,
+                    failed: 0
+                };
+            }
+
+            groupedUsage[key].requests += 1;
+
+            if (item.successful) {
+                groupedUsage[key].successful += 1;
+            } else {
+                groupedUsage[key].failed += 1;
+            }
+        });
+
+        res.status(200).json({
+            usage: Object.values(groupedUsage)
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+//Bookings
+exports.getAdminBookings = async (req, res, next) => {
+    try {
+        const bookings = await Booking.find()
+            .populate(
+                "gigId",
+                "title price"
+            )
+            .populate(
+                "clientId",
+                "name email"
+            )
+            .populate(
+                "freelancerId",
+                "name email"
+            )
+            .sort({
+                createdAt: -1
+            });
+
+        res.status(200).json({
+            bookings
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+//Update Booking
+exports.updateAdminBooking = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const allowedStatuses = [
+            "pending",
+            "accepted",
+            "in_progress",
+            "completed",
+            "cancelled"
+        ];
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                message: "Invalid booking status."
+            });
+        }
+
+        const booking = await Booking.findById(id);
+
+        if (!booking) {
+            return res.status(404).json({
+                message: "Booking not found."
+            });
+        }
+
+        booking.status = status;
+
+        const updatedBooking =
+            await booking.save();
+
+        res.status(200).json({
+            message: "Booking updated successfully.",
+            booking: updatedBooking
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 // @desc    Get all gigs for admin management
 // @route   GET /api/admin/gigs

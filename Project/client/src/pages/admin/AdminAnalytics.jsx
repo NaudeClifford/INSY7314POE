@@ -181,11 +181,11 @@ function AdminAnalytics() {
                                 </tr>
                             ) : (
                                 analytics.map(
-                                    (item) => (
+                                    (item, index) => (
                                         <tr
                                             key={
                                                 item._id ||
-                                                item.id
+                                                item.id || index
                                             }
                                         >
                                             <td>
