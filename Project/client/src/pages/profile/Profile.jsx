@@ -1,36 +1,26 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 
 function Profile() {
     const API_URL = import.meta.env.VITE_API_URL;
-    const { token, user } = useAuth() || {};
-
+    const [deletingId, setDeletingId] = useState(null);
     const [form, setForm] = useState({
         fullName: "",
         email: "",
         bio: "",
         skills: ""
     });
-
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    // Get JWT from AuthContext first, then localStorage as fallback.
-    const getAuthToken = () => {
-        return token || localStorage.getItem("token");
-    };
-
     useEffect(() => {
         const loadProfile = async () => {
-            const authToken = getAuthToken();
-
-            if (!authToken) {
-                setError("You must be logged in to view your profile.");
-                setLoading(false);
-                return;
-            }
 
             try {
                 setLoading(true);
@@ -40,9 +30,7 @@ function Profile() {
                     `${API_URL}/api/users/profile`,
                     {
                         method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${authToken}`
-                        }
+                        credentials: "include"
                     }
                 );
 
@@ -59,7 +47,7 @@ function Profile() {
                 const profile = data.data || data.user || data;
 
                 setForm({
-                    fullName: profile.fullName || "",
+                    fullName: profile.name || "",
                     email: profile.email || "",
                     bio: profile.bio || "",
                     skills: Array.isArray(profile.skills)
@@ -75,7 +63,7 @@ function Profile() {
         };
 
         loadProfile();
-    }, [API_URL, token]);
+    }, [API_URL]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -93,13 +81,6 @@ function Profile() {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const authToken = getAuthToken();
-
-        if (!authToken) {
-            setError("Your session has expired. Please log in again.");
-            return;
-        }
-
         try {
             setSaving(true);
             setError("");
@@ -109,9 +90,9 @@ function Profile() {
                 `${API_URL}/api/users/profile`,
                 {
                     method: "PUT",
+                    credentials: "include",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         fullName: form.fullName.trim(),
@@ -139,7 +120,7 @@ function Profile() {
 
             setForm((current) => ({
                 ...current,
-                fullName: updatedUser.fullName || current.fullName,
+                fullName: updatedUser.name || current.fullName,
                 bio: updatedUser.bio || "",
                 skills: Array.isArray(updatedUser.skills)
                     ? updatedUser.skills.join(", ")
@@ -154,6 +135,50 @@ function Profile() {
             setSaving(false);
         }
     };
+
+    async function handleDelete() {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete your account?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            setError("");
+            setSuccess("");
+
+            const response = await fetch(
+                `${API_URL}/api/users/profile`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                }
+            );
+
+            const data = await response.json().catch(() => ({}));;
+
+            if (!response.ok) {
+                throw new Error(data.error ||
+                    data.message || "Failed to delete account."
+                );
+            }
+
+            setSuccess("Your account has been deleted");
+
+            await logout();
+
+            navigate("/");
+
+        } catch (err) {
+            console.error("Failed to delete account:", err);
+            setError(err.message);
+        } finally {
+            setDeletingId(null);
+        }
+    }
 
     if (loading) {
         return (
@@ -302,6 +327,16 @@ function Profile() {
                             {saving
                                 ? "Saving..."
                                 : "Save Changes"}
+                        </button>
+
+                        <button
+                            type="button"
+                            className="button button-danger"
+                            disabled={deletingId}
+                            onClick={() => handleDelete()}
+                            >
+                                {deletingId ? "Deleting..." : "Delete"}
+                        
                         </button>
                     </div>
 

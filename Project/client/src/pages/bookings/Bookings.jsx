@@ -97,8 +97,8 @@ function Bookings() {
     return (
         <main className="page-container">
 
-            <div className="booking-page-heading">
-                <h1 style={{ color: "#f59e0b" }}>Bookings</h1>
+            <div className="page-heading">
+                <h1>Bookings</h1>
 
                 <p>
                     {user?.role === "Freelancer"

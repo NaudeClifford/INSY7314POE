@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 function CreateGig() {
     const navigate = useNavigate();
-    const { token } = useAuth() || {};
 
     const [form, setForm] = useState({
         title: "",
@@ -24,10 +22,6 @@ function CreateGig() {
 
     const API_URL = import.meta.env.VITE_API_URL;
 
-    function getAuthToken() {
-        return token || localStorage.getItem("token");
-    }
-
     function handleChange(event) {
         const { name, value } = event.target;
 
@@ -45,11 +39,6 @@ function CreateGig() {
         setLoading(true);
 
         try {
-            const authToken = getAuthToken();
-
-            if (!authToken) {
-                throw new Error("You are not authenticated. Please log in again.");
-            }
 
             // Safely parse numeric fields
             const parsedPrice = parseFloat(form.price);
@@ -93,7 +82,6 @@ function CreateGig() {
                     credentials: "include",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${authToken}`
                     },
                     body: JSON.stringify(payload)
                 }

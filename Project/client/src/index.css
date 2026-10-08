@@ -142,7 +142,6 @@ p {
   background-attachment: fixed;
 }
 
-
 /* GLOBAL CONTAINERS */
 
 .section-container,
@@ -155,21 +154,14 @@ p {
 .page-container {
   padding: 50px 20px;
 }
-/* BOOKINGS PAGE HEADING */
 
-.booking-page-heading {
-  position: relative;
-  margin-bottom: 40px;
-  padding: 50px 30px;
+
+.page-container h1, h2, h3, h4, h5, p{
+
   text-align: center;
-
-  background: linear-gradient(white 20%, transparent);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-large);
-  box-shadow: var(--shadow-small);
-
-  overflow: hidden;
 }
+
+/* BOOKINGS PAGE HEADING */
 
 .booking-page-heading::after {
   content: "";
@@ -184,38 +176,38 @@ p {
   border-radius: var(--radius-pill);
 }
 
-.booking-page-heading h1 {
-  margin-bottom: 10px;
+/* PAGE HEADINGS */
+
+.page-heading {
+  position: relative;
+  margin-bottom: 40px;
+  padding: 50px 30px;
+  text-align: center;
+
+  background: linear-gradient(white 20%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-small);
+border-left: 10px solid var(--color-accent);
+border-right: 10px solid var(--color-accent);
+
+  overflow: hidden;
+}
+
+.page-heading h1 {
 
   color: var(--color-foreground);
   font-size: clamp(34px, 5vw, 48px);
   font-weight: 800;
   letter-spacing: -1.5px;
-}
-
-.booking-page-heading p {
-  max-width: 600px;
-  margin: 0 auto;
-
-  color: var(--color-primary);
-  font-size: 17px;
-  line-height: 1.7;
-}
-
-/* PAGE HEADINGS */
-
-.page-heading {
-  margin-bottom: 30px;
-}
-
-.page-heading h1 {
-  margin-bottom: 8px;
-  font-size: clamp(28px, 4vw, 40px);
-  font-weight: 800;
-  letter-spacing: -0.8px;
+  
 }
 
 .page-heading p {
+  color: var(--color-accent);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 16px;
   margin: 0;
 }
 
@@ -1328,7 +1320,8 @@ a:focus-visible {
 
 .gig-description {
   margin-bottom: 35px;
-
+  color: var(--color-accent);
+  font-weight: bold;
   font-size: 17px;
   line-height: 1.7;
 }
@@ -1336,12 +1329,20 @@ a:focus-visible {
 .gig-details-section {
   margin-top: 25px;
   padding-top: 25px;
+  color: var(--color-primary);
+  background-color: var(--color-background);
+  border: 2px solid var(--color-muted);
+  border-radius: var(--radius-large);
+}
 
-  border-top: 1px solid var(--color-border);
+.gig-details-section p{
+  color: var(--color-primary);
+  font-weight: 400;
 }
 
 .gig-details-section h2 {
   margin-bottom: 20px;
+    color: var(--color-primary);
 
   font-size: 20px;
 }
@@ -1358,23 +1359,29 @@ a:focus-visible {
 .gig-info-grid>div {
   display: flex;
   flex-direction: column;
-
+  border: 2px solid var(--color-muted);
+  border-radius: var(--radius-pill);
+  background: white;
+  color: var(--color-primary);
   gap: 6px;
 }
 
 .gig-info-label {
-  color: var(--color-muted);
-
+  color: var(--color-primary);
+  text-align: center;
+  font-weight: 500;
   font-size: 13px;
 }
 
 .gig-info-grid strong {
   color: var(--color-foreground);
+  text-align: center;
 }
 
 .location-coordinates {
-  color: var(--color-muted);
-
+  color: var(--color-primary);
+  border: 2px solid var(--color-border-dark);
+  border-radius: var(--radius-pill);
   font-size: 13px;
 }
 

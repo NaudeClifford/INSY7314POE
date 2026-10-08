@@ -45,7 +45,7 @@ function Dashboard() {
                         credentials: "include",
                         headers: authHeaders
                     }).catch(() => null),
-                    fetch(`${API_URL}/api/transactions`, {
+                    fetch(`${API_URL}/api/transactions/my-transactions`, {
                         credentials: "include",
                         headers: authHeaders
                     }).catch(() => null)

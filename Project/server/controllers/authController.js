@@ -24,7 +24,7 @@ const registerUser = async (req, res, next) => {
       name,
       email,
       password: hashedPassword,
-      role: "Freelancer" || "Client"
+      role: role === "Client" ? "Client" : "Freelancer"
     });
 
     await newUser.save();
@@ -74,13 +74,46 @@ const loginUser = async (req, res, next) => {
       role: user.role
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || "1h"
-    });
+const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "1h"
+});
+
+res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 60 * 60 * 1000
+});
+
+res.status(200).json({
+    message: "Login successful",
+    user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+    }
+});
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get currently logged-in user
+// @route   GET /api/auth/me
+// @access  Private
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found."
+      });
+    }
 
     res.status(200).json({
-      message: "Login successful",
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -93,7 +126,26 @@ const loginUser = async (req, res, next) => {
   }
 };
 
+
+// @desc    Logout user
+// @route   POST /api/auth/logout
+// @access  Public
+const logoutUser = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none"
+  });
+
+  res.status(200).json({
+    message: "Logged out successfully."
+  });
+};
+
+
 module.exports = {
   registerUser,
-  loginUser
+  loginUser,
+  logoutUser,
+  getCurrentUser
 };

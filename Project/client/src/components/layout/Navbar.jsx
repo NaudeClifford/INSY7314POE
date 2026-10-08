@@ -37,26 +37,19 @@ function Navbar() {
 
                     {user && (
                         <>
-                            <Link to="/bookings">
-                                Bookings
-                            </Link>
-
-                            <Link to="/profile">
-                                Profile
-                            </Link>
-
+ 
                             {user.role === "Freelancer" && (
                                 <>
                                     <Link to="/dashboard">
                                         Dashboard
                                     </Link>
 
-                                    <Link to="/my-gigs">
-                                        My Gigs
+                                    <Link to="/bookings">
+                                        Bookings
                                     </Link>
 
-                                    <Link to="/create-gig">
-                                        Create Gig
+                                    <Link to="/my-gigs">
+                                        My Gigs
                                     </Link>
 
                                     <Link to="/income">
@@ -66,6 +59,23 @@ function Navbar() {
                                     <Link to="/transactions">
                                         Transactions
                                     </Link>
+
+                                    <Link to="/profile">
+                                        Profile
+                                    </Link>
+                                </>
+                            )}
+
+                            {user.role === "Client" && (
+                                <>
+
+                                    <Link to="/bookings">
+                                        Bookings
+                                    </Link>
+
+                                    <Link to="/profile">
+                                        Profile
+                                    </Link>
                                 </>
                             )}
 
@@ -73,6 +83,30 @@ function Navbar() {
                                 <>
                                     <Link to="/admin">
                                         Admin
+                                    </Link>
+
+                                    <Link to="/admin/analytics">
+                                        Analytics
+                                    </Link>
+
+                                    <Link to="/admin/api-usage">
+                                        API Usage
+                                    </Link>
+
+                                    <Link to="/admin/bookings">
+                                        Bookings
+                                    </Link>
+
+                                    <Link to="/admin/gigs">
+                                        Gigs
+                                    </Link>
+
+                                    <Link to="/admin/users">
+                                        Users
+                                    </Link>
+
+                                    <Link to="/profile">
+                                        Profile
                                     </Link>
                                 </>
                             )}

@@ -58,7 +58,7 @@ const updateUserProfile = async (req, res, next) => {
   try {
     // Support both req.user.id and req.user._id
     const userId = req.user?.id || req.user?._id || req.body.userId;
-    const { name, phone, bio, skills, location, profilePicture } = req.body;
+    const { fullName, phone, bio, skills, location, profilePicture } = req.body;
 
     const user = await User.findById(userId);
 
@@ -66,7 +66,7 @@ const updateUserProfile = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (name) user.name = name;
+    if (fullName) user.name = fullName.trim();
     if (phone !== undefined) user.phone = phone;
     if (bio !== undefined) user.bio = bio;
     if (skills !== undefined) user.skills = skills;
@@ -111,10 +111,48 @@ const getPublicUserProfile = async (req, res, next) => {
   }
 };
 
+
+//Delete Profile
+const deleteProfile = async(req, res, next) => {
+  try{
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if(!user) return res.status(404).json({message: "User not found."});
+
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({message: "Account deleted successfully."});
+  }
+
+  catch(error){next(error);}
+}
+
+//deleteUser
+const deleteUser = async(req, res, next) => {
+  try{
+    const { id } = req.params;
+
+    const user = await User.findById(userId);
+
+    if(!user) return res.status(404).json({message: "User not found."});
+
+    if(req.user.id.toString() === user._id.toString()) return res.status(400).json({message: "You can't delete your own admin account"})
+
+      await User.findByIdAndDelete(id);
+
+    res.status(200).json({message: "User deleted successfully."});
+  }
+
+  catch(error){next(error);}
+}
+
 module.exports = {
   getUsers,
   createUser,
   getUserProfile,
   updateUserProfile,
-  getPublicUserProfile
+  getPublicUserProfile,
+  deleteProfile,
+  deleteUser
 };

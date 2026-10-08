@@ -1,19 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 function MyGigs() {
     const API_URL = import.meta.env.VITE_API_URL;
-    const { token } = useAuth() || {};
 
     const [gigs, setGigs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [deletingId, setDeletingId] = useState(null);
-
-    function getAuthToken() {
-        return token || localStorage.getItem("token");
-    }
 
     useEffect(() => {
         loadGigs();
@@ -24,7 +18,6 @@ function MyGigs() {
         setError("");
 
         try {
-            const authToken = getAuthToken();
 
             // Updated endpoint from /api/gigs/my to /api/gigs/my-gigs
             const response = await fetch(
@@ -32,10 +25,6 @@ function MyGigs() {
                 {
                     method: "GET",
                     credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                        ...(authToken && { Authorization: `Bearer ${authToken}` })
-                    }
                 }
             );
 
@@ -48,6 +37,7 @@ function MyGigs() {
             }
 
             setGigs(data.gigs || data || []);
+
         } catch (err) {
             console.error("Failed to load gigs:", err);
             setError(err.message);
@@ -69,17 +59,12 @@ function MyGigs() {
         setError("");
 
         try {
-            const authToken = getAuthToken();
 
             const response = await fetch(
                 `${API_URL}/api/gigs/${gigId}`,
                 {
                     method: "DELETE",
                     credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                        ...(authToken && { Authorization: `Bearer ${authToken}` })
-                    }
                 }
             );
 

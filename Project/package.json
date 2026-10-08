@@ -11,6 +11,7 @@
     "migrate-mongo": "^14.0.7"
   },
   "dependencies": {
-    "dotenv": "^18.0.4"
+    "dotenv": "^18.0.4",
+    "node.js": "^0.0.1-security"
   }
 }

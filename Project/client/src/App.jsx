@@ -35,15 +35,16 @@ function App() {
         {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/marketplace" element={<Marketplace />} />
-        <Route path="/gigs/:id" element={<GigDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
         {/* Any authenticated user */}
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<Profile />} />
-          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/bookings" element={<Bookings />} />       
+         <Route path="/gigs/:id" element={<GigDetails />} />
         </Route>
+
 
         {/* Freelancer only */}
         <Route element={<ProtectedRoute />}>
@@ -60,40 +61,13 @@ function App() {
         {/* Admin route */}
         <Route element={<ProtectedRoute />}>
           <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
-            <Route
-              path="/admin"
-              element={<AdminDashboard />}
-            />
-
-          <Route
-            path="/admin/users"
-            element={<AdminUsers />}
-          />
-
-          <Route
-            path="/admin/users/:id/edit"
-            element={<AdminEditUser />}
-          />
-
-          <Route
-            path="/admin/gigs"
-            element={<AdminGigs />}
-          />
-
-          <Route
-            path="/admin/bookings"
-            element={<AdminBookings />}
-          />
-
-          <Route
-            path="/admin/analytics"
-            element={<AdminAnalytics />}
-          />
-
-            <Route
-              path="/admin/api-usage"
-              element={<AdminApiUsage />}
-            />
+            <Route path="/admin" element={<AdminDashboard />}/>
+            <Route path="/admin/analytics" element={<AdminAnalytics />}/>
+            <Route path="/admin/api-usage" element={<AdminApiUsage />}/>
+            <Route path="/admin/bookings" element={<AdminBookings />}/>
+            <Route path="/admin/gigs" element={<AdminGigs />}/>
+            <Route path="/admin/users" element={<AdminUsers />}/>
+            <Route path="/admin/users/:id/edit" element={<AdminEditUser />} />
 
           </Route>
         </Route>

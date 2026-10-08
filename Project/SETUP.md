@@ -157,7 +157,7 @@ SSL_CERT_PATH=./server/certs/localhost-cert.pem
 MONGO_URI=
 MONGO_DB_NAME=HustleHub
 
-JWT_SECRET=
+JWT_SECRET=$bytes = New-Object byte[] 64; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes); [Convert]::ToBase64String($bytes)
 JWT_EXPIRES_IN=1h
 
 GOOGLE_MAPS_API_KEY=
@@ -187,6 +187,10 @@ Generate a self-signed certificate using OpenSSL:
 
 ```cmd
 "C:\Program Files\OpenSSL-Win64\bin\openssl.exe" req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost-cert.pem -days 365 -nodes -subj "/CN=localhost"
+```
+
+```Powershell, add (&) in the beginning
+& "C:\Program Files\OpenSSL-Win64\bin\openssl.exe" req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost-cert.pem -days 365 -nodes -subj "/CN=localhost"
 ```
 
 This creates:

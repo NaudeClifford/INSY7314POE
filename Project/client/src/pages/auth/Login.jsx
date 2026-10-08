@@ -39,13 +39,12 @@ function Login() {
                 throw new Error(data.message || "Login failed.");
             }
 
-            // Save the JWT token to localStorage so CreateGig & Profile can use it
-            if (data.token) {
-                localStorage.setItem("token", data.token);
-            }
+        login(data.user);
 
-            login(data.user || data);
-            navigate("/dashboard");
+        if (data.user.role === "Admin") navigate("/admin");
+        else if (data.user.role === "Freelancer") navigate("/dashboard");
+        else navigate("/");
+
         } catch (err) {
             setError(err.message);
         } finally {
