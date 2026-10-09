@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,13 +10,9 @@ function MyGigs() {
     const [error, setError] = useState("");
     const [deletingId, setDeletingId] = useState(null);
 
-    useEffect(() => {
-        loadGigs();
-    }, []);
+
 
     async function loadGigs() {
-        setLoading(true);
-        setError("");
 
         try {
 
@@ -45,6 +42,10 @@ function MyGigs() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadGigs();
+    }, []);
 
     async function handleDelete(gigId) {
         const confirmed = window.confirm(

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -14,9 +15,6 @@ function EditGig() {
         price: "",
         deliveryDays: "",
         address: "",
-        placeId: "",
-        latitude: "",
-        longitude: "",
         status: "active",
         imageUrl: ""
     });
@@ -25,17 +23,13 @@ function EditGig() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        loadGig();
-    }, [id]);
+
 
     async function loadGig() {
-        setLoading(true);
-        setError("");
 
         try {
             const response = await fetch(
-                `${API_URL}/api/gigs/${id}`,
+                `${API_URL}/api/gigs/my-gigs/${id}`,
                 {
                     method: "GET",
                     credentials: "include"
@@ -59,9 +53,6 @@ function EditGig() {
                 price: gig.price ?? "",
                 deliveryDays: gig.deliveryDays ?? "",
                 address: gig.location?.address || "",
-                placeId: gig.location?.placeId || "",
-                latitude: gig.location?.latitude ?? "",
-                longitude: gig.location?.longitude ?? "",
                 status: gig.status || "active",
                 imageUrl: gig.imageUrl || ""
             });
@@ -72,6 +63,10 @@ function EditGig() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadGig();
+    }, [id]);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -104,10 +99,7 @@ function EditGig() {
                         price: Number(form.price),
                         deliveryDays: Number(form.deliveryDays),
                         location: {
-                            address: form.address.trim(),
-                            placeId: form.placeId.trim(),
-                            latitude: Number(form.latitude),
-                            longitude: Number(form.longitude)
+                            address: form.address.trim()
                         },
                         status: form.status,
                         imageUrl: form.imageUrl.trim()
@@ -269,55 +261,6 @@ function EditGig() {
                         onChange={handleChange}
                         required
                     />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="placeId">
-                        Google Place ID
-                    </label>
-
-                    <input
-                        id="placeId"
-                        name="placeId"
-                        type="text"
-                        value={form.placeId}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                <div className="form-row">
-                    <div className="form-group">
-                        <label htmlFor="latitude">
-                            Latitude
-                        </label>
-
-                        <input
-                            id="latitude"
-                            name="latitude"
-                            type="number"
-                            step="any"
-                            value={form.latitude}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="longitude">
-                            Longitude
-                        </label>
-
-                        <input
-                            id="longitude"
-                            name="longitude"
-                            type="number"
-                            step="any"
-                            value={form.longitude}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
                 </div>
 
                 <div className="form-group">

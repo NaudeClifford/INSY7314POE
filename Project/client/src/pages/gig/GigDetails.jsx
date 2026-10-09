@@ -163,14 +163,6 @@ function GigDetails() {
                                 {gig.location.address}
                             </p>
 
-                            {gig.location.latitude != null &&
-                                gig.location.longitude != null && (
-                                    <p className="location-coordinates">
-                                        {gig.location.latitude},{" "}
-                                        {gig.location.longitude}
-                                    </p>
-                                )}
-
                         </div>
                     )}
 
@@ -192,7 +184,7 @@ function GigDetails() {
                         </p>
                     </div>
 
-                    {!gig.isActive ? (
+                    {!gig.isActive || gig.status !== "active" ? (
                         <button
                             type="button"
                             disabled

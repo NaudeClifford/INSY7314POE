@@ -10,10 +10,7 @@ function CreateGig() {
         category: "",
         price: "",
         deliveryDays: "",
-        address: "",
-        placeId: "",
-        latitude: "",
-        longitude: ""
+        address: ""
     });
 
     const [loading, setLoading] = useState(false);
@@ -43,8 +40,6 @@ function CreateGig() {
             // Safely parse numeric fields
             const parsedPrice = parseFloat(form.price);
             const parsedDeliveryDays = parseInt(form.deliveryDays, 10);
-            const parsedLat = parseFloat(form.latitude);
-            const parsedLng = parseFloat(form.longitude);
 
             if (isNaN(parsedPrice) || parsedPrice < 0) {
                 throw new Error("Please enter a valid price.");
@@ -54,10 +49,6 @@ function CreateGig() {
                 throw new Error("Delivery days must be at least 1.");
             }
 
-            if (isNaN(parsedLat) || isNaN(parsedLng)) {
-                throw new Error("Please enter valid numeric latitude and longitude values.");
-            }
-
             const payload = {
                 title: form.title.trim(),
                 description: form.description.trim(),
@@ -65,15 +56,9 @@ function CreateGig() {
                 price: parsedPrice,
                 deliveryDays: parsedDeliveryDays,
                 location: {
-                    address: form.address.trim(),
-                    placeId: form.placeId.trim() || "default_place_id",
-                    latitude: parsedLat,
-                    longitude: parsedLng
+                    address: form.address.trim()
                 }
             };
-
-            // Log the payload to browser console
-            console.log("Creating Gig Payload:", payload);
 
             const response = await fetch(
                 `${API_URL}/api/gigs`,
@@ -246,61 +231,10 @@ function CreateGig() {
                     />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="placeId">
-                        Google Place ID
-                    </label>
-
-                    <input
-                        id="placeId"
-                        name="placeId"
-                        type="text"
-                        value={form.placeId}
-                        onChange={handleChange}
-                        placeholder="Google Place ID"
-                        required
-                    />
-                </div>
-
-                <div className="form-row">
-                    <div className="form-group">
-                        <label htmlFor="latitude">
-                            Latitude
-                        </label>
-
-                        <input
-                            id="latitude"
-                            name="latitude"
-                            type="number"
-                            step="any"
-                            value={form.latitude}
-                            onChange={handleChange}
-                            placeholder="-25.7479"
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="longitude">
-                            Longitude
-                        </label>
-
-                        <input
-                            id="longitude"
-                            name="longitude"
-                            type="number"
-                            step="any"
-                            value={form.longitude}
-                            onChange={handleChange}
-                            placeholder="28.2293"
-                            required
-                        />
-                    </div>
-                </div>
-
                 <div className="form-actions">
                     <button
                         type="button"
+                        className="secondary-button"
                         onClick={() => navigate("/dashboard")}
                         disabled={loading}
                     >
