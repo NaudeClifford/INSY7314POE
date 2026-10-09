@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 // Verifies the JWT sent in the Authorization header.
 // Usage: router.get("/protected-route", protect, someController);
-const protect = (req, res, next) => {
+const protect = async (req, res, next) => {
   const token = req.cookies?.token;
 
   if(!token) return res.status(401).json({message: "Not authorized, no token provided."});
@@ -10,7 +11,11 @@ const protect = (req, res, next) => {
   try{
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded;
+    const user = await User.findById(decoded.id).select("_id role isActive");
+    if (!user || !user.isActive) {
+      return res.status(401).json({ message: "Account is unavailable." });
+    }
+    req.user = { id: user._id.toString(), role: user.role };
 
     next();
   }

@@ -7,7 +7,10 @@ const validateRegistration = [
     .bail()
     .trim()
     .isLength({ min: 2, max: 100 })
-    .withMessage("Name must be between 2 and 100 characters"),
+    .withMessage("Name must be between 2 and 100 characters")
+    .bail()
+    .matches(/^[^<>]+$/)
+    .withMessage("Name contains invalid characters"),
 
   body("email")
     .isString()
@@ -36,7 +39,7 @@ const validateRegistration = [
     .isString()
     .withMessage("Role must be text")
     .bail()
-    .isIn(["Client", "Freelancer", "Admin"])
+    .isIn(["Client", "Freelancer"])
     .withMessage("Invalid user role"),
 
   (req, res, next) => {

@@ -16,7 +16,7 @@ const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 const validateRegistration = require("../middleware/validateRegistration");
 
 // GET USERS (requires a valid JWT)
-router.get("/", protect, getUsers);
+router.get("/", protect, authorizeRoles("Admin"), getUsers);
 
 // CREATE USER
 router.post("/", validateRegistration, createUser);

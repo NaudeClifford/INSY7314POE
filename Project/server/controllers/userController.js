@@ -17,7 +17,9 @@ const createUser = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const user = new User({
-      ...req.body,
+      name: req.body.name,
+      email: req.body.email,
+      role: req.body.role === "Freelancer" ? "Freelancer" : "Client",
       password: hashedPassword
     });
 
@@ -57,8 +59,17 @@ const getUserProfile = async (req, res, next) => {
 const updateUserProfile = async (req, res, next) => {
   try {
     // Support both req.user.id and req.user._id
-    const userId = req.user?.id || req.user?._id || req.body.userId;
-    const { fullName, phone, bio, skills, location, profilePicture } = req.body;
+    const userId = req.user.id;
+    const { fullName, phone, bio, skills, location, profilePicture } = req.body || {};
+    if ((fullName !== undefined && (typeof fullName !== "string" || fullName.trim().length < 2 || fullName.length > 100 || /[<>]/.test(fullName))) ||
+        (phone !== undefined && (typeof phone !== "string" || phone.length > 30 || /[<>]/.test(phone))) ||
+        (bio !== undefined && (typeof bio !== "string" || bio.length > 2000 || /[<>]/.test(bio))) ||
+        (skills !== undefined && (!Array.isArray(skills) || skills.length > 30 || skills.some(s => typeof s !== "string" || s.length > 80 || /[<>]/.test(s)))) ||
+        (location !== undefined && (typeof location !== "string" || location.length > 200 || /[<>]/.test(location))) ||
+        (profilePicture !== undefined && profilePicture !== null && profilePicture !== "" &&
+          (typeof profilePicture !== "string" || profilePicture.length > 500 || !/^https?:\/\//i.test(profilePicture)))) {
+      return res.status(400).json({ message: "Invalid profile details." });
+    }
 
     const user = await User.findById(userId);
 
@@ -98,7 +109,7 @@ const updateUserProfile = async (req, res, next) => {
 const getPublicUserProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select(
-      "name email role profilePicture bio skills location createdAt"
+      "name role profilePicture bio skills location createdAt"
     );
 
     if (!user) {
@@ -120,7 +131,8 @@ const deleteProfile = async(req, res, next) => {
 
     if(!user) return res.status(404).json({message: "User not found."});
 
-    await User.findByIdAndDelete(userId);
+    user.isActive = false;
+    await user.save();
 
     res.status(200).json({message: "Account deleted successfully."});
   }
@@ -133,13 +145,14 @@ const deleteUser = async(req, res, next) => {
   try{
     const { id } = req.params;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(id);
 
     if(!user) return res.status(404).json({message: "User not found."});
 
     if(req.user.id.toString() === user._id.toString()) return res.status(400).json({message: "You can't delete your own admin account"})
 
-      await User.findByIdAndDelete(id);
+      user.isActive = false;
+      await user.save();
 
     res.status(200).json({message: "User deleted successfully."});
   }

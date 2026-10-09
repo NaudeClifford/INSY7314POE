@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -66,7 +67,7 @@ function Signup() {
                 throw new Error(data.message || "Registration failed.");
             }
 
-            console.log("Registration successful:", data);
+            navigate("/login", { replace: true, state: { registered: true } });
         } catch (err) {
             setError(err.message);
         } finally {

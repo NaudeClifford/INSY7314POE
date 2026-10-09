@@ -61,6 +61,9 @@ const loginUser = async (req, res, next) => {
       // Same message as "wrong password" below — don't reveal which one was wrong
       return res.status(401).json({ message: "Invalid email or password." });
     }
+    if (!user.isActive || !user.password) {
+      return res.status(401).json({ message: "Invalid email or password." });
+    }
 
     // Compare submitted password against the stored hash
     const isMatch = await bcrypt.compare(password, user.password);
@@ -81,7 +84,7 @@ const token = jwt.sign(payload, process.env.JWT_SECRET, {
 res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    sameSite: "none",
+    sameSite: "lax",
     maxAge: 60 * 60 * 1000
 });
 
@@ -134,7 +137,7 @@ const logoutUser = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
-    sameSite: "none"
+    sameSite: "lax"
   });
 
   res.status(200).json({
