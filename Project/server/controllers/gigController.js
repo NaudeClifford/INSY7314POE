@@ -1,4 +1,5 @@
 const Gig = require("../models/Gig");
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // @desc    Get all active gigs (with search, category, and price filters)
 // @route   GET /api/gigs
@@ -8,22 +9,22 @@ exports.getGigs = async (req, res, next) => {
 
     let query = { status: "active", isActive: true };
 
-    if (search) {
-      query.title = { $regex: search, $options: "i" };
+    if (typeof search === "string" && search.trim()) {
+      query.title = { $regex: escapeRegex(search.trim().slice(0, 80)), $options: "i" };
     }
 
-    if (category && category !== "All") {
+    if (typeof category === "string" && category !== "All") {
       query.category = category;
     }
 
     if (minPrice || maxPrice) {
       query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      if (minPrice && Number.isFinite(Number(minPrice))) query.price.$gte = Number(minPrice);
+      if (maxPrice && Number.isFinite(Number(maxPrice))) query.price.$lte = Number(maxPrice);
     }
 
     const gigs = await Gig.find(query)
-      .populate("freelancerId", "name email profilePicture rating")
+      .populate("freelancerId", "name profilePicture rating")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: gigs.length, gigs });
@@ -36,11 +37,11 @@ exports.getGigs = async (req, res, next) => {
 // @route   GET /api/gigs/:id
 exports.getGigById = async (req, res, next) => {
   try {
-    const gig = await Gig.findByIdAndUpdate(
-      req.params.id,
+    const gig = await Gig.findOneAndUpdate(
+      { _id: req.params.id, status: "active", isActive: true },
       { $inc: { views: 1 } },
       { new: true }
-    ).populate("freelancerId", "name email profilePicture bio location rating");
+    ).populate("freelancerId", "name profilePicture bio location rating");
 
     if (!gig) {
       return res.status(404).json({ message: "Gig not found" });
@@ -50,6 +51,19 @@ exports.getGigById = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+// A freelancer can load their own paused gig for editing without exposing it publicly.
+exports.getMyGigById = async (req, res, next) => {
+  try {
+    const gig = await Gig.findOne({
+      _id: req.params.id,
+      freelancerId: req.user.id,
+      status: { $ne: "deleted" }
+    });
+    if (!gig) return res.status(404).json({ message: "Gig not found." });
+    res.status(200).json({ success: true, gig });
+  } catch (error) { next(error); }
 };
 
 // @desc    Create a new gig
@@ -63,12 +77,11 @@ exports.createGig = async (req, res, next) => {
       price,
       deliveryDays,
       location,
-      imageUrl,
-      weather
+      imageUrl
     } = req.body;
 
     // Fixed: Supports both req.user.id and req.user._id
-    const freelancerId = req.user?.id || req.user?._id || req.body.freelancerId;
+    const freelancerId = req.user.id;
 
     if (!freelancerId) {
       return res.status(400).json({ message: "Freelancer ID is required." });
@@ -82,8 +95,7 @@ exports.createGig = async (req, res, next) => {
       price,
       deliveryDays,
       location,
-      imageUrl: imageUrl || "",
-      weather
+      imageUrl: imageUrl || ""
     });
 
     res.status(201).json({ success: true, gig });
@@ -96,9 +108,11 @@ exports.createGig = async (req, res, next) => {
 // @route   PUT /api/gigs/:id
 exports.updateGig = async (req, res, next) => {
   try {
-    const gig = await Gig.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+    const { title, description, category, price, deliveryDays, location, imageUrl, status } = req.body;
+    const gig = await Gig.findOneAndUpdate(
+      { _id: req.params.id, freelancerId: req.user.id, status: { $ne: "deleted" } },
+      { title, description, category, price, deliveryDays, location,
+        imageUrl: imageUrl || "", status, isActive: status !== "paused" },
       { new: true, runValidators: true }
     );
 
@@ -116,7 +130,10 @@ exports.updateGig = async (req, res, next) => {
 // @route   DELETE /api/gigs/:id
 exports.deleteGig = async (req, res, next) => {
   try {
-    const gig = await Gig.findByIdAndDelete(req.params.id);
+    const gig = await Gig.findOneAndUpdate(
+      { _id: req.params.id, freelancerId: req.user.id },
+      { status: "deleted", isActive: false }, { new: true }
+    );
 
     if (!gig) {
       return res.status(404).json({ message: "Gig not found" });
@@ -133,9 +150,9 @@ exports.deleteGig = async (req, res, next) => {
 exports.getMyGigs = async (req, res, next) => {
   try {
     // Fixed: Supports both req.user.id and req.user._id
-    const freelancerId = req.user?.id || req.user?._id || req.query.freelancerId;
+    const freelancerId = req.user.id;
 
-    const gigs = await Gig.find({ freelancerId }).sort({ createdAt: -1 });
+    const gigs = await Gig.find({ freelancerId, status: { $ne: "deleted" } }).sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, gigs });
   } catch (error) {
