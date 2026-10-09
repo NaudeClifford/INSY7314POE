@@ -6,10 +6,13 @@ const {
   getBookingById,
   updateBookingStatus
 } = require("../controllers/bookingController");
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+const { validateBooking, validateId } = require("../middleware/validateMarketplace");
 
-router.post("/", createBooking);
+router.use(protect);
+router.post("/", authorizeRoles("Client"), validateBooking, createBooking);
 router.get("/my-bookings", getMyBookings);
-router.get("/:id", getBookingById);
-router.patch("/:id/status", updateBookingStatus);
+router.get("/:id", validateId, getBookingById);
+router.patch("/:id/status", validateId, updateBookingStatus);
 
 module.exports = router;
