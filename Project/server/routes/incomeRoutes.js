@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { getIncomeData } = require("../controllers/incomeController");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
 
-router.get("/", protect, getIncomeData);
+router.get("/", protect, authorizeRoles("Freelancer"), getIncomeData);
 
 module.exports = router;

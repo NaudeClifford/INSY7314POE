@@ -4,7 +4,7 @@ const Transaction = require("../models/Transaction");
 // @route   GET /api/income
 exports.getIncomeData = async (req, res, next) => {
   try {
-    const userId = req.user?.id || req.user?._id;
+    const userId = req.user.id;
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required." });
@@ -12,8 +12,8 @@ exports.getIncomeData = async (req, res, next) => {
 
     // Find all completed/paid transactions for this user
     const transactions = await Transaction.find({
-      $or: [{ freelancerId: userId }, { userId: userId }]
-    }).sort({ createdAt: 1 });
+      freelancerId: userId, status: "completed"
+    }).populate("bookingId", "status").sort({ createdAt: 1 });
 
     let gross = 0;
     let fees = 0;
@@ -22,11 +22,11 @@ exports.getIncomeData = async (req, res, next) => {
 
     const monthlyMap = {};
 
-    transactions.forEach((tx) => {
+    transactions.filter(tx => tx.bookingId?.status === "completed").forEach((tx) => {
       const txAmount = tx.amount || 0;
       const txFee = tx.platformFee || 0;
       const txTax = tx.taxAmount || 0;
-      const txNet = tx.freelancerAmount || (txAmount - txFee - txTax);
+      const txNet = tx.freelancerAmount ?? (txAmount - txFee - txTax);
 
       gross += txAmount;
       fees += txFee;
