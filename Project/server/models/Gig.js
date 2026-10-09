@@ -43,22 +43,6 @@ const gigSchema = new mongoose.Schema(
                 type: String,
                 required: true,
                 trim: true
-            },
-
-            placeId: {
-                type: String,
-                required: true,
-                trim: true
-            },
-
-            latitude: {
-                type: Number,
-                required: true
-            },
-
-            longitude: {
-                type: Number,
-                required: true
             }
         },
 
@@ -92,12 +76,6 @@ const gigSchema = new mongoose.Schema(
             type: String,
             default: ""
         },
-        weather: {
-            temperature: Number,
-            description: String,
-            icon: String
-        },
-        
         createdAt: {
             type: Date,
             default: Date.now

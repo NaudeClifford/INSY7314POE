@@ -25,22 +25,6 @@ const bookingSchema = new mongoose.Schema(
                 type: String,
                 required: true,
                 trim: true
-            },
-
-            placeId: {
-                type: String,
-                required: true,
-                trim: true
-            },
-
-            latitude: {
-                type: Number,
-                required: true
-            },
-
-            longitude: {
-                type: Number,
-                required: true
             }
         },
 
