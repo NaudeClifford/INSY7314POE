@@ -16,6 +16,7 @@ const {
 } = require("../controllers/adminController");
 
 const {protect, authorizeRoles} = require("../middleware/authMiddleware");
+const { validateId } = require("../middleware/validateMarketplace");
 
 router.use(protect);
 router.use(authorizeRoles("Admin"));
@@ -30,8 +31,8 @@ router.get("/", getAdminDashboard);
 
 //Users
 router.get("/users", getAdminUsers);
-router.get("/users/:id", getAdminUsers);
-router.put("/users/:id", getAdminUsers);
+router.get("/users/:id", validateId, getAdminUser);
+router.put("/users/:id", validateId, updateAdminUser);
 
 //Analytics
 router.get("/analytics", getAdminAnalytics);
@@ -41,6 +42,6 @@ router.get("/api-usage", getAdminApiUsage);
 
 //Bookings
 router.get("/bookings", getAdminBookings);
-router.get("/bookings/:id", updateAdminBooking);
+router.put("/bookings/:id", validateId, updateAdminBooking);
 
 module.exports = router;

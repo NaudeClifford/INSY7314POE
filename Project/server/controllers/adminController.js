@@ -24,6 +24,8 @@ exports.getAdminDashboard = async(req, res, next) => {
                         status: "completed"
                     }
                 },
+                { $lookup: { from: "bookings", localField: "bookingId", foreignField: "_id", as: "booking" } },
+                { $match: { "booking.status": "completed" } },
                 {
                     $group: {
                         _id: null,
@@ -49,7 +51,7 @@ const platformRevenue = revenueResult.length >0 ? revenueResult[0].totalRevenue 
 //Get all users
 exports.getAdminUsers = async (req, res, next)=>{
   try{
-    const users = await User.find().select("_id name email provider isActive createdAt")
+    const users = await User.find().select("_id name email role provider isActive createdAt")
     .sort({createdAt: -1});
 
     res.status(200).json({users});
@@ -92,7 +94,16 @@ exports.updateAdminUser = async (req, res, next) => {
             bio,
             skills,
             isActive
-        } = req.body;
+        } = req.body || {};
+
+        if ((name !== undefined && (typeof name !== "string" || name.trim().length < 2 || name.length > 100 || /[<>]/.test(name))) ||
+            (email !== undefined && (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254)) ||
+            (role !== undefined && !["Client", "Freelancer", "Admin"].includes(role)) ||
+            (bio !== undefined && (typeof bio !== "string" || bio.length > 2000 || /[<>]/.test(bio))) ||
+            (skills !== undefined && (!Array.isArray(skills) || skills.length > 30 || skills.some(s => typeof s !== "string" || s.length > 80 || /[<>]/.test(s)))) ||
+            (isActive !== undefined && typeof isActive !== "boolean")) {
+            return res.status(400).json({ message: "Invalid user details." });
+        }
 
         const user = await User.findById(id);
 
@@ -175,6 +186,8 @@ exports.getAdminAnalytics = async (req, res, next) => {
               {
                 $match:{status: "completed"}
               },
+              { $lookup: { from: "bookings", localField: "bookingId", foreignField: "_id", as: "booking" } },
+              { $match: { "booking.status": "completed" } },
               {
                 $group: {_id: null, totalRevenue: {$sum: "$platformFee"}}
               }
@@ -262,9 +275,7 @@ exports.getAdminBookings = async (req, res, next) => {
                 "freelancerId",
                 "name email"
             )
-            .sort({
-                createdAt: -1
-            });
+            .sort({ requestedAt: -1 });
 
         res.status(200).json({
             bookings
@@ -278,7 +289,7 @@ exports.getAdminBookings = async (req, res, next) => {
 exports.updateAdminBooking = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { status } = req.body || {};
 
         const allowedStatuses = [
             "pending",
@@ -303,9 +314,12 @@ exports.updateAdminBooking = async (req, res, next) => {
         }
 
         booking.status = status;
+        booking.completedAt = status === "completed" ? new Date() : null;
 
         const updatedBooking =
             await booking.save();
+        await Transaction.updateOne({ bookingId: booking._id },
+            { status: status === "cancelled" ? "refunded" : status === "completed" ? "completed" : "pending" });
 
         res.status(200).json({
             message: "Booking updated successfully.",
@@ -332,10 +346,10 @@ exports.getAllAdminGigs = async (req, res, next) => {
 // @route   PUT /api/admin/gigs/:id
 exports.updateAdminGigStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
+    const { status } = req.body || {};
     const gig = await Gig.findByIdAndUpdate(
       req.params.id,
-      { status },
+      { status, isActive: status === "active" },
       { new: true, runValidators: true }
     );
 
@@ -353,7 +367,8 @@ exports.updateAdminGigStatus = async (req, res, next) => {
 // @route   DELETE /api/admin/gigs/:id
 exports.deleteAdminGig = async (req, res, next) => {
   try {
-    const gig = await Gig.findByIdAndDelete(req.params.id);
+    const gig = await Gig.findByIdAndUpdate(req.params.id,
+      { status: "deleted", isActive: false }, { new: true });
 
     if (!gig) {
       return res.status(404).json({ message: "Gig not found" });
