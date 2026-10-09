@@ -12,6 +12,7 @@ import CreateGig from "./pages/gig/CreateGig";
 import EditGig from "./pages/gig/EditGig";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Bookings from "./pages/bookings/Bookings";
+import NewBooking from "./pages/bookings/NewBooking";
 import Transactions from "./pages/transactions/Transactions";
 import Income from "./pages/transactions/Income";
 import Profile from "./pages/profile/Profile";
@@ -35,6 +36,7 @@ function App() {
         {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/marketplace" element={<Marketplace />} />
+        <Route path="/gigs/:id" element={<GigDetails />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
@@ -42,7 +44,18 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/bookings" element={<Bookings />} />       
-         <Route path="/gigs/:id" element={<GigDetails />} />
+        </Route>
+
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute allowedRoles={["Client", "Freelancer"]} />}>
+            <Route path="/transactions" element={<Transactions />} />
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute allowedRoles={["Client"]} />}>
+            <Route path="/bookings/new" element={<NewBooking />} />
+          </Route>
         </Route>
 
 
@@ -54,7 +67,6 @@ function App() {
             <Route path="/gigs/:id/edit" element={<EditGig />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/income" element={<Income />} />
-            <Route path="/transactions" element={<Transactions />} />
           </Route>
         </Route>
 
