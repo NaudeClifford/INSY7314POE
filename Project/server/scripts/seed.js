@@ -14,6 +14,10 @@ const Transaction = require("../models/Transaction");
 
 async function seedDatabase() {
     try {
+        if (process.env.NODE_ENV === "production" ||
+            !/(local|dev|test)/i.test(process.env.MONGO_DB_NAME || "")) {
+            throw new Error("Seeding is permitted only for a local, dev, or test database.");
+        }
         await connectDB();
 
         console.log("Clearing existing development data...");
@@ -93,9 +97,6 @@ async function seedDatabase() {
 
                 location: {
                     address: "Pretoria, South Africa",
-                    placeId: "development-place-1",
-                    latitude: -25.7479,
-                    longitude: 28.2293
                 },
 
                 isActive: true,
@@ -122,9 +123,6 @@ async function seedDatabase() {
 
                 location: {
                     address: "Pretoria, South Africa",
-                    placeId: "development-place-2",
-                    latitude: -25.7479,
-                    longitude: 28.2293
                 },
 
                 isActive: true,
@@ -151,9 +149,6 @@ async function seedDatabase() {
 
                 location: {
                     address: "Johannesburg, South Africa",
-                    placeId: "development-place-3",
-                    latitude: -26.2041,
-                    longitude: 28.0473
                 },
 
                 isActive: true,
@@ -180,9 +175,6 @@ async function seedDatabase() {
 
                 location: {
                     address: "Pretoria, South Africa",
-                    placeId: "development-place-4",
-                    latitude: -25.7479,
-                    longitude: 28.2293
                 },
 
                 isActive: true,
@@ -209,9 +201,6 @@ async function seedDatabase() {
 
                 location: {
                     address: "Johannesburg, South Africa",
-                    placeId: "development-place-5",
-                    latitude: -26.2041,
-                    longitude: 28.0473
                 },
 
                 isActive: true,
@@ -238,9 +227,6 @@ async function seedDatabase() {
 
                 location: {
                     address: "Pretoria, South Africa",
-                    placeId: "development-place-6",
-                    latitude: -25.7479,
-                    longitude: 28.2293
                 },
 
                 isActive: true,
@@ -317,9 +303,9 @@ async function seedDatabase() {
 
             platformFee: 250,
 
-            freelancerAmount: 2250,
+            freelancerAmount: 1912.5,
 
-            taxAmount: 450,
+            taxAmount: 337.5,
 
             status: "completed",
 
@@ -339,15 +325,27 @@ async function seedDatabase() {
 
             platformFee: 60,
 
-            freelancerAmount: 540,
+            freelancerAmount: 459,
 
-            taxAmount: 108,
+            taxAmount: 81,
 
             status: "pending",
 
             payoutDate: null,
 
             invoiceNumber: "INV-2026-0002"
+        });
+
+        await Transaction.create({
+            bookingId: pendingBooking._id,
+            clientId: client._id,
+            freelancerId: freelancer2._id,
+            amount: 1800,
+            platformFee: 180,
+            taxAmount: 243,
+            freelancerAmount: 1377,
+            status: "pending",
+            invoiceNumber: "INV-2026-0003"
         });
 
         console.log("Checking Admin account...");
