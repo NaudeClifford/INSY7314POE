@@ -1,6 +1,6 @@
 # HustleHub+ Development Setup
 
-This guide explains how to set up the HustleHub+ project for local development using React (Vite), Express, MongoDB Atlas, migrations, seed data, Firebase authentication, and HTTPS with OpenSSL.
+This guide explains how to set up HustleHub+ for local development using React (Vite), Express, MongoDB, migrations, seed data, and HTTPS with OpenSSL.
 
 ---
 
@@ -11,6 +11,7 @@ Install the following before starting:
 * Node.js (LTS)
 * Git
 * OpenSSL (Windows)
+* MongoDB Community Server running locally, or a MongoDB Atlas connection string
 * Visual Studio Code or Visual Studio 2022
 
 ---
@@ -66,7 +67,7 @@ npm install
 Create a `.env` file inside `client/`.
 
 ```env
-VITE_API_URL=https://localhost:4000
+VITE_API_URL=https://localhost:5000
 VITE_APP_NAME=HustleHub+
 ```
 
@@ -114,26 +115,21 @@ HustleHubPlus/
 Example `.env`:
 
 ```env
-PORT=4000
+PORT=5000
 
 USE_HTTPS=true
 
 CLIENT_ORIGIN=https://localhost:5173
 
-SSL_KEY_PATH=./server/certs/localhost-key.pem
-SSL_CERT_PATH=./server/certs/localhost-cert.pem
+SSL_KEY_PATH=./server/certificates/localhost-key.pem
+SSL_CERT_PATH=./server/certificates/localhost-cert.pem
 
-MONGO_URI=<your MongoDB Atlas connection string>
-MONGO_DB_NAME=HustleHub
+MONGO_URI=mongodb://127.0.0.1:27017
+MONGO_DB_NAME=HustleHubPart2Local
 
 JWT_SECRET=<your long random JWT secret>
 JWT_EXPIRES_IN=1h
-
-GOOGLE_MAPS_API_KEY=<your Google Maps API key>
-OPENWEATHER_API_KEY=<your OpenWeather API key>
 ```
-
-If Firebase authentication is configured, add the required Firebase configuration values provided by the backend implementation.
 
 Never commit real secrets to Git.
 
@@ -146,22 +142,19 @@ The repository should contain an `.env.example` file containing placeholders onl
 Example:
 
 ```env
-PORT=4000
+PORT=5000
 USE_HTTPS=true
 
 CLIENT_ORIGIN=https://localhost:5173
 
-SSL_KEY_PATH=./server/certs/localhost-key.pem
-SSL_CERT_PATH=./server/certs/localhost-cert.pem
+SSL_KEY_PATH=./server/certificates/localhost-key.pem
+SSL_CERT_PATH=./server/certificates/localhost-cert.pem
 
 MONGO_URI=
-MONGO_DB_NAME=HustleHub
+MONGO_DB_NAME=HustleHubPart2Local
 
-JWT_SECRET=$bytes = New-Object byte[] 64; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes); [Convert]::ToBase64String($bytes)
+JWT_SECRET=<long random secret>
 JWT_EXPIRES_IN=1h
-
-GOOGLE_MAPS_API_KEY=
-OPENWEATHER_API_KEY=
 ```
 
 The real `.env` file must be included in `.gitignore`:
@@ -176,47 +169,20 @@ The real `.env` file must be included in `.gitignore`:
 
 # Generate Local HTTPS Certificates
 
-Create the certificate folder:
+From the `Project` directory, generate a local certificate for both Vite and Express:
 
 ```bash
-mkdir certs
-cd certs
+npm run generate-cert
 ```
 
-Generate a self-signed certificate using OpenSSL:
-
-```cmd
-"C:\Program Files\OpenSSL-Win64\bin\openssl.exe" req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost-cert.pem -days 365 -nodes -subj "/CN=localhost"
-```
-
-```Powershell, add (&) in the beginning
-& "C:\Program Files\OpenSSL-Win64\bin\openssl.exe" req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost-cert.pem -days 365 -nodes -subj "/CN=localhost"
-```
-
-This creates:
-
-```text
-localhost-key.pem
-localhost-cert.pem
-```
-
-Return to the server directory:
-
-```bash
-cd ..
-```
-
-Start the backend:
+The script saves the key and certificate in `server/certificates/` (ignored by Git).
+Start both applications from the `Project` directory:
 
 ```bash
 npm run dev
 ```
 
-The API will run on:
-
-```text
-https://localhost:4000
-```
+The frontend runs at `https://localhost:5173` and the API at `https://localhost:5000`.
 
 ---
 
@@ -233,9 +199,9 @@ To remove browser certificate warnings:
 
 ---
 
-# MongoDB Atlas
+# MongoDB
 
-HustleHub+ uses MongoDB Atlas.
+This machine is configured to use a separate local database named `HustleHubPart2Local`. If you later obtain an Atlas URI, replace `MONGO_URI` in the ignored `Project/.env` and choose a development database name in `MONGO_DB_NAME`.
 
 The main collections are:
 
@@ -283,7 +249,7 @@ bookings
 transactions
 ```
 
-Do not manually create these indexes in MongoDB Atlas when an equivalent migration already exists.
+Do not manually create these indexes when an equivalent migration already exists.
 
 ---
 
@@ -299,15 +265,16 @@ npm run seed
 
 The seed script creates development users, gigs, bookings, and transactions.
 
-The development seed currently includes test accounts for:
+The development seed includes accounts for:
 
 ```text
 Client
 Freelancer
 Freelancer
+Admin
 ```
 
-The seed script clears the existing development users, gigs, bookings, and transactions before recreating them.
+The seed script clears the existing development users, gigs, bookings, and transactions before recreating them. It refuses to run in production or against a database whose name does not contain `local`, `dev`, or `test`.
 
 > Only run the seed script against the development database. Do not run it against a production database.
 
@@ -327,7 +294,6 @@ The project should use:
 * Secure cookies in production
 * Appropriate `SameSite` cookie configuration
 * bcrypt password hashing
-* Firebase token verification for Google/Microsoft authentication
 * Rate limiting on authentication endpoints
 * Request validation
 * Role-based authorization
@@ -388,36 +354,6 @@ Hiding an admin link in React is not sufficient security.
 
 ---
 
-# Firebase Authentication
-
-Google and Microsoft authentication use Firebase authentication.
-
-The expected flow is:
-
-```text
-Google/Microsoft
-       ↓
-Firebase Authentication
-       ↓
-Firebase identity token
-       ↓
-HustleHub+ API
-       ↓
-Verify Firebase token
-       ↓
-Find/create MongoDB User
-       ↓
-Create HustleHub+ session
-```
-
-When a Google or Microsoft user signs in for the first time, the API should create the corresponding HustleHub+ user in MongoDB.
-
-The API must verify Firebase tokens server-side.
-
-The frontend must never be trusted to provide a Firebase user ID or role as proof of authorization.
-
----
-
 # API Authorization
 
 The backend must enforce authorization for protected resources.
@@ -463,36 +399,11 @@ when credentials/cookies are being used.
 
 ---
 
-# Google Maps
+# Gig locations
 
-Google Maps is used for gig locations.
+Freelancers enter a plain address when creating or editing a gig. Bookings keep a snapshot of that address so later gig edits do not change historical bookings.
 
-Gig locations contain:
-
-```text
-address
-placeId
-latitude
-longitude
-```
-
-Bookings store a snapshot of the gig location so that changing a gig's location later does not modify historical bookings.
-
----
-
-# OpenWeather
-
-Weather information can be retrieved using:
-
-```text
-booking date
-+
-latitude
-+
-longitude
-```
-
-Weather forecasts should preferably be retrieved when required rather than permanently storing an entire forecast response.
+If you already have data from the earlier form with Google Place IDs and coordinates, run `npm run upgrade-local-data` from `Project/server`. This updates transaction statuses to match bookings and removes the obsolete location fields from the local development database.
 
 ---
 
@@ -534,7 +445,7 @@ npm install
 
 3. Make sure the local `.env` exists.
 
-4. Make sure MongoDB Atlas is configured.
+4. Make sure your local MongoDB service is running, or configure an Atlas URI in `Project/.env`.
 
 5. Check migrations:
 
