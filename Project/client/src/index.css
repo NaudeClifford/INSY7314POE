@@ -156,11 +156,6 @@ p {
 }
 
 
-.page-container h1, h2, h3, h4, h5, p{
-
-  text-align: center;
-}
-
 /* BOOKINGS PAGE HEADING */
 
 .booking-page-heading::after {
@@ -266,6 +261,18 @@ a:focus-visible {
 .button-danger {
   background: var(--color-danger);
   border-color: var(--color-danger);
+  color: white;
+}
+
+.button.button-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.button.button-secondary:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   color: white;
 }
 
@@ -499,7 +506,6 @@ a:focus-visible {
 /* CARDS */
 
 .feature-card,
-.category-card,
 .gig-card,
 .gig-details-main,
 .gig-booking-card,
@@ -577,6 +583,8 @@ a:focus-visible {
 
 .feature-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   padding: 32px;
   min-height: 260px;
 
@@ -587,6 +595,8 @@ a:focus-visible {
   box-shadow: var(--shadow-small);
 
   text-align: left;
+  text-decoration: none;
+  color: var(--color-foreground);
 
   transition:
     transform 0.2s ease,
@@ -600,6 +610,10 @@ a:focus-visible {
   box-shadow: var(--shadow-medium);
 }
 
+.feature-card:focus-visible {
+  border-color: var(--color-accent);
+}
+
 .feature-number {
   display: inline-flex;
   align-items: center;
@@ -608,11 +622,11 @@ a:focus-visible {
   width: 42px;
   height: 42px;
 
-  margin-bottom: 45px;
+  margin-bottom: 26px;
 
   border-radius: 50%;
 
-  background: var(--color-accent-soft);
+  background: var(--color-accent-light);
   color: var(--color-accent-hover);
 
   font-size: 13px;
@@ -630,103 +644,13 @@ a:focus-visible {
 }
 
 .feature-arrow {
-  position: absolute;
-  right: 30px;
-  bottom: 28px;
+  align-self: flex-end;
+  margin-top: auto;
 
   color: var(--color-accent);
 
   font-size: 24px;
   font-weight: 700;
-}
-
-
-/* CATEGORIES */
-
-.categories {
-  padding: 100px 20px;
-  background: transparent;
-}
-
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-}
-
-.category-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  position: relative;
-
-  padding: 22px;
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-
-  text-align: left;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-small);
-}
-
-.category-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  width: 50px;
-  height: 50px;
-
-  border-radius: 12px;
-
-  background: black;
-  color: white;
-
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.category-card h3 {
-  margin: 0 0 5px;
-  font-size: 17px;
-}
-
-.category-card p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.category-arrow {
-  margin-left: auto;
-
-  color: var(--color-muted);
-  font-size: 20px;
-
-  transition:
-    transform 0.2s ease,
-    color 0.2s ease;
-}
-
-.category-card:hover .category-arrow {
-  color: var(--color-accent);
-  transform: translateX(4px);
 }
 
 
@@ -1378,13 +1302,6 @@ a:focus-visible {
   text-align: center;
 }
 
-.location-coordinates {
-  color: var(--color-primary);
-  border: 2px solid var(--color-border-dark);
-  border-radius: var(--radius-pill);
-  font-size: 13px;
-}
-
 .gig-booking-card {
   position: sticky;
   top: 25px;
@@ -1690,7 +1607,9 @@ a:focus-visible {
   border: 1px solid #bbf7d0;
 }
 
-.booking-status-cancelled {
+.booking-status-cancelled,
+.booking-status-refunded,
+.booking-status-failed {
   color: #991b1b;
   background: var(--color-danger-light);
   border: 1px solid #fecaca;
@@ -1793,6 +1712,9 @@ a:focus-visible {
 .booking-card-footer {
   display: flex;
   align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
 
   min-width: 175px;
 
@@ -1804,6 +1726,10 @@ a:focus-visible {
 }
 
 .booking-card-footer .button {
+  width: 100%;
+}
+
+.booking-card-footer button {
   width: 100%;
 }
 
@@ -2349,6 +2275,12 @@ table tbody tr:hover {
   margin-top: 20px;
 }
 
+.gig-management-actions .button {
+  flex: 1 1 160px;
+  width: auto;
+  margin-top: 0;
+}
+
 .status-success {
   color: var(--color-success);
   background: var(--color-success-light);
@@ -2495,8 +2427,7 @@ table tbody tr:hover {
 @media (max-width: 900px) {
 
   .gig-grid,
-  .feature-grid,
-  .category-grid {
+  .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -2570,8 +2501,7 @@ table tbody tr:hover {
   }
 
   .gig-grid,
-  .feature-grid,
-  .category-grid {
+  .feature-grid {
     grid-template-columns: 1fr;
   }
 

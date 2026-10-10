@@ -1,24 +1,18 @@
 import { Link } from "react-router-dom";
 import "./Hero.css";
 
-function Hero() {
+function Hero({ title, description, primary, secondary }) {
     return (
         <section className="hero">
             <div className="hero-content">
-                <h1>Find Work. Hire Talent. Grow.</h1>
-
-                <p>
-                    HustleHub+ connects clients with talented freelancers
-                    for projects of all kinds.
-                </p>
-
+                <h1>{title}</h1>
+                <p>{description}</p>
                 <div className="hero-buttons">
-                    <Link to="/marketplace" className="hero-button primary">
-                        Browse Gigs
+                    <Link to={primary.to} className="button hero-button">
+                        {primary.label}
                     </Link>
-
-                    <Link to="/signup" className="hero-button secondary">
-                        Get Started
+                    <Link to={secondary.to} className="button button-secondary hero-button">
+                        {secondary.label}
                     </Link>
                 </div>
             </div>

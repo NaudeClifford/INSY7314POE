@@ -1,10 +1,9 @@
 .hero {
     background-image: url("/background1.webp");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-            padding: 100px 20px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: clamp(72px, 9vw, 110px) 20px;
     text-align: center;
 }
 
@@ -14,7 +13,7 @@
 }
 
 .hero h1 {
-    font-size: 48px;
+    font-size: clamp(36px, 6vw, 52px);
     margin-bottom: 20px;
     color: white;
 }
@@ -29,23 +28,30 @@
 .hero-buttons {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
-.hero-button {
+.hero-buttons .hero-button {
+    min-width: 170px;
     padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
 }
 
-.hero-button.primary {
-    background: red;
+.hero-buttons .hero-button:not(.button-secondary) {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #111827;
+}
+
+.hero-buttons .hero-button:not(.button-secondary):hover {
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
     color: white;
 }
 
-.hero-button.secondary {
-    background: white;
-    color: black;
-    border: 1px solid black;
+@media (max-width: 420px) {
+    .hero-buttons .hero-button {
+        width: 100%;
+    }
 }

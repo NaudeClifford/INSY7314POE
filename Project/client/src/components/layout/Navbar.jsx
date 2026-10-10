@@ -73,6 +73,10 @@ function Navbar() {
                                         Bookings
                                     </Link>
 
+                                    <Link to="/transactions">
+                                        Transactions
+                                    </Link>
+
                                     <Link to="/profile">
                                         Profile
                                     </Link>
