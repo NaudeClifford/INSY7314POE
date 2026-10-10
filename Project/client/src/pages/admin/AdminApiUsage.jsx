@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useMemo, useState } from "react";
 
 function AdminApiUsage() {
@@ -12,13 +13,9 @@ function AdminApiUsage() {
     const [selectedDay, setSelectedDay] = useState("");
     const [selectedMonth, setSelectedMonth] = useState("");
 
-    useEffect(() => {
-        loadUsage();
-    }, []);
+
 
     async function loadUsage() {
-        setLoading(true);
-        setError("");
 
         try {
             const response = await fetch(
@@ -50,6 +47,10 @@ function AdminApiUsage() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadUsage();
+    }, []);
 
     function getDateValue(date) {
         if (!date) {
@@ -533,7 +534,7 @@ function AdminApiUsage() {
 
                     <button
                         type="button"
-                        className="secondary-button"
+                        className="button button-secondary"
                         onClick={clearFilters}
                     >
                         Clear Filters

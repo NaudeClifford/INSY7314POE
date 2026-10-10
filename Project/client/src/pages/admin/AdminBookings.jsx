@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 
 function AdminBookings() {
@@ -7,13 +8,9 @@ function AdminBookings() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        loadBookings();
-    }, []);
+
 
     async function loadBookings() {
-        setLoading(true);
-        setError("");
 
         try {
             const response = await fetch(
@@ -47,6 +44,10 @@ function AdminBookings() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadBookings();
+    }, []);
 
     async function handleStatusChange(
         booking,

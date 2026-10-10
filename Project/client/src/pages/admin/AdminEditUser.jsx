@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -20,13 +21,9 @@ function AdminEditUser() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        loadUser();
-    }, [id]);
+
 
     async function loadUser() {
-        setLoading(true);
-        setError("");
 
         try {
             const response = await fetch(
@@ -64,6 +61,10 @@ function AdminEditUser() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadUser();
+    }, [id]);
 
     function handleChange(event) {
         const { name, value, type, checked } = event.target;

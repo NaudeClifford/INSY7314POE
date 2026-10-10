@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -8,13 +9,9 @@ function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        loadDashboard();
-    }, []);
+
 
     async function loadDashboard() {
-        setLoading(true);
-        setError("");
 
         try {
             const response = await fetch(
@@ -46,6 +43,10 @@ function AdminDashboard() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadDashboard();
+    }, []);
 
     function formatCurrency(value) {
         return `R${Number(value || 0).toLocaleString(

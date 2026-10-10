@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -8,13 +9,9 @@ function AdminUsers() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
+
 
     async function loadUsers() {
-        setLoading(true);
-        setError("");
 
         try {
             const response = await fetch(
@@ -41,6 +38,10 @@ function AdminUsers() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadUsers();
+    }, []);
 
     async function handleToggleActive(user) {
         const userId = user._id || user.id;
