@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 function Dashboard() {
-    const { token } = useAuth() || {};
     const API_URL = import.meta.env.VITE_API_URL;
 
     const [dashboard, setDashboard] = useState({
@@ -19,24 +17,16 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    function getAuthToken() {
-        return token || localStorage.getItem("token");
-    }
-
     useEffect(() => {
         async function loadDashboardData() {
             try {
                 setLoading(true);
                 setError("");
 
-                const authToken = getAuthToken();
-                const authHeaders = {
-                    "Content-Type": "application/json",
-                    ...(authToken && { Authorization: `Bearer ${authToken}` })
-                };
+                const authHeaders = { "Content-Type": "application/json" };
 
                 // Fetch Gigs, Bookings, and Transactions concurrently
-                const [gigsRes, bookingsRes, txRes] = await Promise.all([
+                const [gigsRes, bookingsRes, incomeRes] = await Promise.all([
                     fetch(`${API_URL}/api/gigs/my-gigs`, {
                         credentials: "include",
                         headers: authHeaders
@@ -45,7 +35,7 @@ function Dashboard() {
                         credentials: "include",
                         headers: authHeaders
                     }).catch(() => null),
-                    fetch(`${API_URL}/api/transactions/my-transactions`, {
+                    fetch(`${API_URL}/api/income`, {
                         credentials: "include",
                         headers: authHeaders
                     }).catch(() => null)
@@ -54,25 +44,20 @@ function Dashboard() {
                 // Parse responses
                 const gigsData = gigsRes && gigsRes.ok ? await gigsRes.json() : [];
                 const bookingsData = bookingsRes && bookingsRes.ok ? await bookingsRes.json() : [];
-                const txData = txRes && txRes.ok ? await txRes.json() : [];
+                const incomeData = incomeRes && incomeRes.ok ? await incomeRes.json() : null;
 
                 const gigsList = Array.isArray(gigsData) ? gigsData : gigsData.gigs || [];
                 const bookingsList = Array.isArray(bookingsData) ? bookingsData : bookingsData.bookings || [];
-                const txList = Array.isArray(txData) ? txData : txData.transactions || [];
-
-                // Calculate gross income from successful transactions/bookings
-                const totalGross = txList.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-                const platformFees = totalGross * 0.1; // 10% platform fee
-                const taxAmount = totalGross * 0.15;   // 15% estimated tax
-                const netIncome = totalGross - platformFees - taxAmount;
+                if (!incomeData) throw new Error("Income data is unavailable.");
+                const { gross, fees, tax, net } = incomeData.income.summary;
 
                 setDashboard({
                     activeGigs: gigsList.length,
                     bookingsCount: bookingsList.length,
-                    grossIncome: totalGross,
-                    platformFees: Math.round(platformFees),
-                    taxAmount: Math.round(taxAmount),
-                    netIncome: Math.round(netIncome),
+                    grossIncome: gross,
+                    platformFees: fees,
+                    taxAmount: tax,
+                    netIncome: net,
                     recentBookings: bookingsList.slice(0, 5)
                 });
             } catch (err) {
@@ -183,14 +168,14 @@ function Dashboard() {
 
                         <Link
                             to="/bookings"
-                            className="button secondary-button"
+                            className="button button-secondary"
                         >
                             View Bookings
                         </Link>
 
                         <Link
                             to="/transactions"
-                            className="button secondary-button"
+                            className="button button-secondary"
                         >
                             View Transactions
                         </Link>

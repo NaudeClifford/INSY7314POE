@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 function Transactions() {
+    const { user } = useAuth();
+    const isClient = user?.role === "Client";
+    const formatMoney = value => `R${Number(value || 0).toLocaleString("en-ZA", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
     const [transactions, setTransactions] = useState([]);
     const [summary, setSummary] = useState({
         gross: 0,
@@ -14,11 +20,6 @@ function Transactions() {
     const [error, setError] = useState("");
 
     const API_URL = import.meta.env.VITE_API_URL;
-    const { token } = useAuth() || {};
-
-    function getAuthToken() {
-        return token || localStorage.getItem("token");
-    }
 
     useEffect(() => {
         async function loadTransactions() {
@@ -26,7 +27,6 @@ function Transactions() {
                 setLoading(true);
                 setError("");
 
-                const authToken = getAuthToken();
 
                 // Fixed endpoint to /api/transactions/my-transactions and added Authorization header
                 const response = await fetch(
@@ -36,7 +36,6 @@ function Transactions() {
                         credentials: "include",
                         headers: {
                             "Content-Type": "application/json",
-                            ...(authToken && { Authorization: `Bearer ${authToken}` })
                         }
                     }
                 );
@@ -49,22 +48,24 @@ function Transactions() {
                 const data = await response.json();
 
                 const list = data.transactions || data || [];
+                const completed = list.filter(item => item.status === "completed" &&
+                    item.bookingId?.status === "completed");
 
                 setTransactions(list);
 
                 setSummary({
                     gross:
                         data.summary?.gross ??
-                        list.reduce((total, item) => total + (item.amount || 0), 0),
+                        completed.reduce((total, item) => total + (item.amount || 0), 0),
                     fees:
                         data.summary?.fees ??
-                        list.reduce((total, item) => total + (item.platformFee || 0), 0),
+                        completed.reduce((total, item) => total + (item.platformFee || 0), 0),
                     tax:
                         data.summary?.tax ??
-                        list.reduce((total, item) => total + (item.taxAmount || 0), 0),
+                        completed.reduce((total, item) => total + (item.taxAmount || 0), 0),
                     net:
                         data.summary?.net ??
-                        list.reduce((total, item) => total + (item.freelancerAmount || 0), 0)
+                        completed.reduce((total, item) => total + (item.freelancerAmount || 0), 0)
                 });
             } catch (err) {
                 console.error(err);
@@ -109,37 +110,48 @@ function Transactions() {
 
             <div className="page-heading">
                 <h1>Transactions</h1>
-                <p>Your earnings, fees and tax overview.</p>
+                <p>{isClient ? "Review transactions for your bookings." : "Completed earnings, fees and estimated tax."}</p>
             </div>
 
-            <div className="stats-grid">
+            {isClient ? (
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <span>Transaction Records</span>
+                        <strong>{transactions.length}</strong>
+                    </div>
+                    <div className="stat-card">
+                        <span>Completed Booking Total</span>
+                        <strong>{formatMoney(summary.gross)}</strong>
+                    </div>
+                </div>
+            ) : <div className="stats-grid">
 
                 <div className="stat-card">
                     <span>Gross</span>
-                    <strong>R{summary.gross}</strong>
+                    <strong>{formatMoney(summary.gross)}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Platform Fees</span>
-                    <strong>R{summary.fees}</strong>
+                    <strong>{formatMoney(summary.fees)}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Estimated Tax</span>
-                    <strong>R{summary.tax}</strong>
+                    <strong>{formatMoney(summary.tax)}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Net Income</span>
-                    <strong>R{summary.net}</strong>
+                    <strong>{formatMoney(summary.net)}</strong>
                 </div>
 
-            </div>
+            </div>}
 
             {transactions.length === 0 ? (
                 <div className="empty-state">
                     <h2>No transactions yet</h2>
-                    <p>Your completed bookings will appear here.</p>
+                    <p>Transactions for your bookings will appear here.</p>
                 </div>
             ) : (
                 <div className="transaction-table-wrapper">
@@ -152,9 +164,9 @@ function Transactions() {
                                 <th>Booking</th>
                                 <th>Status</th>
                                 <th>Amount</th>
-                                <th>Fee</th>
-                                <th>Tax</th>
-                                <th>Net</th>
+                                {!isClient && <th>Fee</th>}
+                                {!isClient && <th>Tax</th>}
+                                {!isClient && <th>Net</th>}
                             </tr>
                         </thead>
 
@@ -164,7 +176,7 @@ function Transactions() {
                                 <tr key={transaction._id || transaction.id}>
                                     <td>{formatDate(transaction.createdAt)}</td>
 
-                                    <td>{transaction.bookingTitle || "Booking"}</td>
+                                    <td>{transaction.bookingId?.gigId?.title || transaction.bookingTitle || "Booking"}</td>
 
                                     <td>
                                         <span
@@ -174,10 +186,10 @@ function Transactions() {
                                         </span>
                                     </td>
 
-                                    <td>R{transaction.amount}</td>
-                                    <td>R{transaction.platformFee}</td>
-                                    <td>R{transaction.taxAmount}</td>
-                                    <td>R{transaction.freelancerAmount}</td>
+                                    <td>{formatMoney(transaction.amount)}</td>
+                                    {!isClient && <td>{formatMoney(transaction.platformFee)}</td>}
+                                    {!isClient && <td>{formatMoney(transaction.taxAmount)}</td>}
+                                    {!isClient && <td>{formatMoney(transaction.freelancerAmount)}</td>}
                                 </tr>
                             ))}
 

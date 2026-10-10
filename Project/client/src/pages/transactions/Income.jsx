@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 
 function Income() {
     const API_URL = import.meta.env.VITE_API_URL;
-    const { token } = useAuth() || {};
 
     const [income, setIncome] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
-    function getAuthToken() {
-        return token || localStorage.getItem("token");
-    }
 
     useEffect(() => {
         async function loadIncome() {
@@ -19,8 +13,6 @@ function Income() {
             setError("");
 
             try {
-                const authToken = getAuthToken();
-
                 const response = await fetch(
                     `${API_URL}/api/income`,
                     {
@@ -28,7 +20,6 @@ function Income() {
                         credentials: "include",
                         headers: {
                             "Content-Type": "application/json",
-                            ...(authToken && { Authorization: `Bearer ${authToken}` })
                         }
                     }
                 );
@@ -179,6 +170,7 @@ function Income() {
                                                     month.amount || 0
                                                 ) /
                                                 Math.max(
+                                                    1,
                                                     ...monthlyIncome.map(
                                                         (item) =>
                                                             Number(
