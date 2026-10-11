@@ -8,6 +8,7 @@ process.env.JWT_SECRET = "test-only-jwt-secret-that-is-not-used-in-production";
 
 const app = require("../app");
 const User = require("../models/User");
+const ApiUsage = require("../models/ApiUsage");
 const { createHttpsServer, readSslCredentials } = require("../config/https");
 
 let server;
@@ -15,6 +16,17 @@ let port;
 let originalFindOne;
 let originalFind;
 let originalSave;
+let originalFindById;
+
+// API usage logging writes to MongoDB; stub it so unit tests run without a database.
+ApiUsage.create = async () => ({});
+
+// The auth middleware loads the user from the database; this fakes an active account.
+const mockActiveUser = (role) => {
+  User.findById = () => ({
+    select: async () => ({ _id: "507f1f77bcf86cd799439011", role, isActive: true })
+  });
+};
 
 // Send requests through Node's HTTPS client so the encryption layer is tested too.
 const request = ({ path, method = "GET", body, headers = {} }) =>
@@ -51,6 +63,7 @@ const request = ({ path, method = "GET", body, headers = {} }) =>
         res.on("end", () => {
           resolve({
             status: res.statusCode,
+            headers: res.headers,
             body: responseBody ? JSON.parse(responseBody) : null,
             encrypted,
             certificate
@@ -68,6 +81,7 @@ test.before(async () => {
   originalFindOne = User.findOne;
   originalFind = User.find;
   originalSave = User.prototype.save;
+  originalFindById = User.findById;
   server = createHttpsServer(app, readSslCredentials());
 
   await new Promise((resolve) => {
@@ -81,6 +95,7 @@ test.after(async () => {
   User.findOne = originalFindOne;
   User.find = originalFind;
   User.prototype.save = originalSave;
+  User.findById = originalFindById;
   await new Promise((resolve, reject) => {
     server.close((error) => error ? reject(error) : resolve());
   });
@@ -90,6 +105,7 @@ test.afterEach(() => {
   User.findOne = originalFindOne;
   User.find = originalFind;
   User.prototype.save = originalSave;
+  User.findById = originalFindById;
 });
 
 test("health endpoint is served over HTTPS", async () => {
@@ -257,13 +273,14 @@ test("login rejects invalid credentials without revealing which field was wrong"
   assert.deepEqual(response.body, { message: "Invalid email or password." });
 });
 
-test("login returns a JWT for valid credentials", async () => {
+test("login sets the JWT in a secure httpOnly cookie for valid credentials", async () => {
   const password = "Password1!";
   User.findOne = async () => ({
     _id: "507f1f77bcf86cd799439011",
     name: "Test User",
     email: "test@example.com",
     role: "Client",
+    isActive: true,
     password: await bcrypt.hash(password, 4)
   });
 
@@ -273,8 +290,13 @@ test("login returns a JWT for valid credentials", async () => {
     body: { email: "test@example.com", password }
   });
 
+  const cookie = (response.headers["set-cookie"] || []).join(";");
   assert.equal(response.status, 200);
-  assert.equal(typeof response.body.token, "string");
+  assert.match(cookie, /token=[^;]+/);
+  assert.match(cookie, /HttpOnly/i);
+  assert.match(cookie, /Secure/i);
+  // The token is never exposed to JavaScript through the response body.
+  assert.equal("token" in response.body, false);
   assert.equal("password" in response.body.user, false);
 });
 
@@ -328,11 +350,15 @@ test("protected routes reject malformed and expired JWTs", async () => {
     process.env.JWT_SECRET,
     { expiresIn: -1 }
   );
+  const forgedToken = jwt.sign(
+    { id: "507f1f77bcf86cd799439011", role: "Admin" },
+    "attacker-guessed-secret"
+  );
 
-  for (const token of ["not-a-valid-token", expiredToken]) {
+  for (const token of ["not-a-valid-token", expiredToken, forgedToken]) {
     const response = await request({
       path: "/api/users",
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Cookie: `token=${token}` }
     });
 
     assert.equal(response.status, 401);
@@ -342,10 +368,26 @@ test("protected routes reject malformed and expired JWTs", async () => {
   }
 });
 
-test("protected routes accept a valid JWT", async () => {
-  User.find = () => ({
-  select: async () => []
+test("protected routes accept a valid JWT cookie for an authorised role", async () => {
+  mockActiveUser("Admin");
+  User.find = () => ({ select: async () => [] });
+  const token = jwt.sign(
+    { id: "507f1f77bcf86cd799439011", role: "Admin" },
+    process.env.JWT_SECRET,
+    { expiresIn: "5m" }
+  );
+
+  const response = await request({
+    path: "/api/users",
+    headers: { Cookie: `token=${token}` }
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(response.body, []);
 });
+
+test("a valid JWT for the wrong role receives 403 Forbidden", async () => {
+  mockActiveUser("Client");
   const token = jwt.sign(
     { id: "507f1f77bcf86cd799439011", role: "Client" },
     process.env.JWT_SECRET,
@@ -354,9 +396,11 @@ test("protected routes accept a valid JWT", async () => {
 
   const response = await request({
     path: "/api/users",
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Cookie: `token=${token}` }
   });
 
-  assert.equal(response.status, 200);
-  assert.deepEqual(response.body, []);
+  assert.equal(response.status, 403);
+  assert.deepEqual(response.body, {
+    message: "You do not have permission to perform this action."
+  });
 });
