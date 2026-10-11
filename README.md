@@ -740,6 +740,11 @@ npm run test:api     # Newman (backend must be running)
 <img width="472" height="79" alt="10b-postman-runner" src="https://github.com/user-attachments/assets/83489922-6dfa-4dee-a01a-1280619f9d26" />
 
 *Figure 18: The same collection run in the Postman app: 169 tests passed, 0 failed, 0 errors.*
+*Proof of all the tests running:*
+<img width="1043" height="640" alt="Proof of Postman 1" src="https://github.com/user-attachments/assets/561604e0-53c7-498b-94ce-a2fdbf658096" />
+<img width="511" height="512" alt="Proof of Postman 2" src="https://github.com/user-attachments/assets/0e413603-c007-4e4b-87b0-1b7c67f8183f" />
+<img width="500" height="68" alt="Proof of Postman 3" src="https://github.com/user-attachments/assets/fb708d27-2039-4f2a-b674-db70784c0e6d" />
+
 
 ---
 
