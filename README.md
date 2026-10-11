@@ -663,7 +663,7 @@ All screenshots are stored in [`Screenshots/`](Screenshots) and were taken from 
 
 ### 12.1 Visitor — browsing and registration
 
-<img src="Screenshots/01-marketplace.png" alt="Marketplace" width="760" />
+<img width="1059" height="901" alt="01-marketplace" src="https://github.com/user-attachments/assets/6c5c378f-a624-4fd8-bf0d-4693f03ad430" />
 
 *Figure 1: The public marketplace lists active gigs with search and category filters. No login is needed to browse.*
 
