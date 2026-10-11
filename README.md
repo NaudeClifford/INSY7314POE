@@ -627,9 +627,8 @@ Run the rate-limit demo **last**, because it locks login for 15 minutes. Restart
 npm run test:ratelimit   # → NewmanReports/newman-ratelimit-report.html
 ```
 
-**Newman HTML report:** [View the full Newman HTML report](NEWMAN_REPORT_LINK_HERE)
-
-The report is also saved in the repository at [`NewmanReports/newman-report.html`](NewmanReports/newman-report.html).
+**Newman HTML report:** 
+The report is saved in the repository at [`NewmanReports/newman-report.html`](NewmanReports/newman-report.html).
 
 > The main collection makes about 14 login and register calls, so it can run twice in 15 minutes before the login limit applies. Restart the backend to reset the in-memory counter.
 >
