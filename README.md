@@ -659,25 +659,89 @@ npm run test:api     # Newman (backend must be running)
 
 ## 12. Screenshots
 
-All evidence is in [`Screenshots/`](Screenshots).
+All screenshots are stored in [`Screenshots/`](Screenshots) and were taken from the application running locally over HTTPS with the seeded database.
 
-| # | Screenshot | Shows |
-| --- | --- | --- |
-| 1 | [Marketplace](Screenshots/01-marketplace.png) | Browsing and searching gigs |
-| 2 | [Sign up validation](Screenshots/02-signup-validation.png) | Friendly validation error |
-| 3 | [Create gig](Screenshots/03-create-gig.png) | Freelancer gig creation |
-| 4 | [My gigs](Screenshots/04-my-gigs.png) | Freelancer's own gigs |
-| 5 | [Book gig](Screenshots/05-book-gig.png) | Simulated booking confirmation |
-| 6 | [Client bookings](Screenshots/06-client-bookings.png) | Booking list |
-| 7 | [Transactions](Screenshots/07-transactions.png) | Transaction record |
-| 8 | [Income](Screenshots/08-income.png) | Freelancer income after completion |
-| 9 | [Admin dashboard](Screenshots/09-admin-dashboard.png) | Admin oversight |
-| 10 | [Newman CLI](Screenshots/10-newman-cli.png) | All assertions passing |
-| 11 | [Newman HTML report](Screenshots/11-newman-html-report.png) | htmlextra summary |
-| 12 | [Newman rate limit](Screenshots/12-newman-rate-limit.png) | `429` after the limit |
-| 13 | [Backend tests](Screenshots/13-backend-tests.png) | 35/35 passing |
-| 14 | [Frontend tests](Screenshots/14-frontend-tests.png) | 29/29 passing |
-| 15 | [Security headers](Screenshots/15-security-headers.png) | CSP and Helmet headers in DevTools |
+### 12.1 Visitor — browsing and registration
+
+<img src="Screenshots/01-marketplace.png" alt="Marketplace" width="760" />
+
+*Figure 1: The public marketplace lists active gigs with search and category filters. No login is needed to browse.*
+
+<img src="Screenshots/02-signup-validation.png" alt="Sign-up password policy error" width="420" />
+
+*Figure 2: Sign-up rejects a weak password. The API's validation message is shown to the user, and the submitted password is never echoed back.*
+
+<img src="Screenshots/02b-signup-validation-length.png" alt="Sign-up password length error" width="420" />
+
+*Figure 3: Sign-up rejects a password shorter than 8 characters.*
+
+### 12.2 Freelancer — gig management and income
+
+<img src="Screenshots/03-create-gig.png" alt="Create gig form" width="760" />
+
+*Figure 4: A freelancer creates a gig with a title, description, category, price, delivery time and location. The server validates every field.*
+
+<img src="Screenshots/04-my-gigs.png" alt="My Gigs page" width="760" />
+
+*Figure 5: My Gigs shows only the logged-in freelancer's own gigs, with View, Edit and Delete actions.*
+
+<img src="Screenshots/07-transactions.png" alt="Freelancer transactions" width="760" />
+
+*Figure 6: The transaction record created by a completed booking: R5 000 gross, a 10% platform fee (R500), 15% tax (R675) and R3 825 net to the freelancer.*
+
+<img src="Screenshots/08-income.png" alt="Freelancer income page" width="760" />
+
+*Figure 7: Income tracking totals the freelancer's completed transactions and shows a monthly breakdown.*
+
+### 12.3 Client — booking a gig
+
+<img src="Screenshots/05-book-gig.png" alt="Book a gig page" width="760" />
+
+*Figure 8: A client books a gig. Payment is simulated, and the agreed price comes from the gig in the database, not from the browser.*
+
+<img src="Screenshots/06-client-bookings.png" alt="Client bookings page" width="760" />
+
+*Figure 9: The client's bookings appear as pending, with the date, price and location. The client can view the gig or cancel.*
+
+### 12.4 Admin — platform oversight
+
+<img src="Screenshots/16-admin-users.png" alt="Admin user management" width="760" />
+
+*Figure 10: Only Admins can see and manage all user accounts and their roles (Client, Freelancer, Admin).*
+
+<img src="Screenshots/17-admin-gigs.png" alt="Admin gig management" width="760" />
+
+*Figure 11: Admins can moderate gigs from every freelancer.*
+
+<img src="Screenshots/18-admin-bookings.png" alt="Admin booking management" width="760" />
+
+*Figure 12: Admins see every booking on the platform, including the completed R5 000 booking shown in Figure 6.*
+
+<img src="Screenshots/19-admin-api-usage.png" alt="Admin API usage" width="560" />
+
+*Figure 13: API usage monitoring: every request is logged and summarised as successful or failed.*
+
+### 12.5 Testing evidence
+
+<img src="Screenshots/13-backend-tests.png" alt="Backend tests passing" width="760" />
+
+*Figure 14: Backend automated tests (`npm run test:server`): 35 passed, 0 failed. They cover HTTPS, JWT cookies, RBAC, ownership, validation, security headers and rate limiting.*
+
+<img src="Screenshots/14-frontend-tests.png" alt="Frontend tests passing" width="760" />
+
+*Figure 15: Frontend tests with Vitest and React Testing Library (`npm run test:client`): 6 files, 29 tests passed. The `stderr` line is expected, because one test deliberately simulates the API failing.*
+
+<img src="Screenshots/10-newman-cli.png" alt="Newman command-line results" width="700" />
+
+*Figure 16: The Part 2 Postman collection run with Newman (`npm run test:api`): 69 requests and 169 assertions, 0 failed.*
+
+<img src="Screenshots/11-newman-html-report.png" alt="Newman HTML report" width="760" />
+
+*Figure 17: The Newman htmlextra report (`NewmanReports/newman-report.html`): 69 requests, 0 failed tests, 0 skipped.*
+
+<img src="Screenshots/10b-postman-runner.png" alt="Postman collection runner" width="760" />
+
+*Figure 18: The same collection run in the Postman app: 169 tests passed, 0 failed, 0 errors.*
 
 ---
 
