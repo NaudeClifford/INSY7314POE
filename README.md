@@ -659,87 +659,85 @@ npm run test:api     # Newman (backend must be running)
 
 ## 12. Screenshots
 
-All screenshots are stored in [`Screenshots/`](Screenshots) and were taken from the application running locally over HTTPS with the seeded database.
-
 ### 12.1 Visitor — browsing and registration
 
 <img width="1059" height="901" alt="01-marketplace" src="https://github.com/user-attachments/assets/6c5c378f-a624-4fd8-bf0d-4693f03ad430" />
 
 *Figure 1: The public marketplace lists active gigs with search and category filters. No login is needed to browse.*
 
-<img src="Screenshots/02-signup-validation.png" alt="Sign-up password policy error" width="420" />
+<img width="432" height="750" alt="02-signup-validation" src="https://github.com/user-attachments/assets/bd2de4bb-0efd-4570-bc3b-064b72d9183c" />
 
 *Figure 2: Sign-up rejects a weak password. The API's validation message is shown to the user, and the submitted password is never echoed back.*
 
-<img src="Screenshots/02b-signup-validation-length.png" alt="Sign-up password length error" width="420" />
+<img width="497" height="773" alt="02b-signup-validation-length" src="https://github.com/user-attachments/assets/6f9c9922-a61d-4fea-9d01-b3289c48e8e0" />
 
 *Figure 3: Sign-up rejects a password shorter than 8 characters.*
 
 ### 12.2 Freelancer — gig management and income
 
-<img src="Screenshots/03-create-gig.png" alt="Create gig form" width="760" />
+<img width="863" height="902" alt="03-create-gig" src="https://github.com/user-attachments/assets/38920636-7862-4564-94cd-d53582e1d652" />
 
 *Figure 4: A freelancer creates a gig with a title, description, category, price, delivery time and location. The server validates every field.*
 
-<img src="Screenshots/04-my-gigs.png" alt="My Gigs page" width="760" />
+<img width="874" height="657" alt="04-my-gigs" src="https://github.com/user-attachments/assets/d3cab941-2246-40c3-8d9d-f5fd57002a43" />
 
 *Figure 5: My Gigs shows only the logged-in freelancer's own gigs, with View, Edit and Delete actions.*
 
-<img src="Screenshots/07-transactions.png" alt="Freelancer transactions" width="760" />
+<img width="868" height="504" alt="07-transactions" src="https://github.com/user-attachments/assets/669acd6d-f05d-4a74-a3cd-fae46a80a34b" />
 
 *Figure 6: The transaction record created by a completed booking: R5 000 gross, a 10% platform fee (R500), 15% tax (R675) and R3 825 net to the freelancer.*
 
-<img src="Screenshots/08-income.png" alt="Freelancer income page" width="760" />
+<img width="767" height="886" alt="08-income" src="https://github.com/user-attachments/assets/09b29af1-ab67-4585-8075-3054b84cc8b0" />
 
 *Figure 7: Income tracking totals the freelancer's completed transactions and shows a monthly breakdown.*
 
 ### 12.3 Client — booking a gig
 
-<img src="Screenshots/05-book-gig.png" alt="Book a gig page" width="760" />
+<img width="909" height="670" alt="05-book-gig" src="https://github.com/user-attachments/assets/4bda1a0c-b198-4ea9-bcdf-6e60ef33bcc5" />
 
 *Figure 8: A client books a gig. Payment is simulated, and the agreed price comes from the gig in the database, not from the browser.*
 
-<img src="Screenshots/06-client-bookings.png" alt="Client bookings page" width="760" />
+<img width="918" height="652" alt="06-client-bookings" src="https://github.com/user-attachments/assets/7704fbd7-1f57-4a18-b375-80934bbd9f5c" />
 
 *Figure 9: The client's bookings appear as pending, with the date, price and location. The client can view the gig or cancel.*
 
 ### 12.4 Admin — platform oversight
 
-<img src="Screenshots/16-admin-users.png" alt="Admin user management" width="760" />
+<img width="840" height="617" alt="16-admin-users" src="https://github.com/user-attachments/assets/4870eb7e-3456-40ff-b029-c0a366b5a66f" />
 
 *Figure 10: Only Admins can see and manage all user accounts and their roles (Client, Freelancer, Admin).*
 
-<img src="Screenshots/17-admin-gigs.png" alt="Admin gig management" width="760" />
+<img width="878" height="714" alt="17-admin-gigs" src="https://github.com/user-attachments/assets/317eb151-c25b-41e0-ac72-52c443b34aa6" />
 
 *Figure 11: Admins can moderate gigs from every freelancer.*
 
-<img src="Screenshots/18-admin-bookings.png" alt="Admin booking management" width="760" />
+<img width="805" height="560" alt="18-admin-bookings" src="https://github.com/user-attachments/assets/6464df19-36e1-4954-bfe9-a422dc1c3144" />
 
 *Figure 12: Admins see every booking on the platform, including the completed R5 000 booking shown in Figure 6.*
 
-<img src="Screenshots/19-admin-api-usage.png" alt="Admin API usage" width="560" />
+<img width="623" height="903" alt="19-admin-api-usage" src="https://github.com/user-attachments/assets/99c14757-5f93-4312-ab63-abe18d7eb991" />
 
 *Figure 13: API usage monitoring: every request is logged and summarised as successful or failed.*
 
 ### 12.5 Testing evidence
 
-<img src="Screenshots/13-backend-tests.png" alt="Backend tests passing" width="760" />
+<img width="749" height="542" alt="13-backend-tests" src="https://github.com/user-attachments/assets/a35fbe63-8b37-44ab-b9d3-2c1c01486edd" />
 
 *Figure 14: Backend automated tests (`npm run test:server`): 35 passed, 0 failed. They cover HTTPS, JWT cookies, RBAC, ownership, validation, security headers and rate limiting.*
 
-<img src="Screenshots/14-frontend-tests.png" alt="Frontend tests passing" width="760" />
+<img width="755" height="484" alt="14-frontend-tests" src="https://github.com/user-attachments/assets/bc14d3cf-304b-4d15-9a82-d6ca45df6df7" />
 
 *Figure 15: Frontend tests with Vitest and React Testing Library (`npm run test:client`): 6 files, 29 tests passed. The `stderr` line is expected, because one test deliberately simulates the API failing.*
 
-<img src="Screenshots/10-newman-cli.png" alt="Newman command-line results" width="700" />
+<img width="562" height="398" alt="10-newman-cli" src="https://github.com/user-attachments/assets/78aec205-f50f-4dba-8980-90c6a37daa00" />
 
 *Figure 16: The Part 2 Postman collection run with Newman (`npm run test:api`): 69 requests and 169 assertions, 0 failed.*
 
-<img src="Screenshots/11-newman-html-report.png" alt="Newman HTML report" width="760" />
+<img width="617" height="50" alt="11-newman-html-report" src="https://github.com/user-attachments/assets/1295f1b2-489c-49ca-98d2-8e671a41f617" />
 
 *Figure 17: The Newman htmlextra report (`NewmanReports/newman-report.html`): 69 requests, 0 failed tests, 0 skipped.*
 
-<img src="Screenshots/10b-postman-runner.png" alt="Postman collection runner" width="760" />
+<img width="472" height="79" alt="10b-postman-runner" src="https://github.com/user-attachments/assets/83489922-6dfa-4dee-a01a-1280619f9d26" />
 
 *Figure 18: The same collection run in the Postman app: 169 tests passed, 0 failed, 0 errors.*
 
