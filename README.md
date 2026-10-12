@@ -45,15 +45,15 @@ HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. 
 | ST10438433 | Caleb Forbes |
 | ST10437348 | Alexandro Ornelas |
 
-Part 2 was split by marking criterion. Each person owned one area and the README section that documents it:
+Part 2 was split by marking criterion.
 
 | Area (marks) | Owner | What was delivered | README section |
 | --- | --- | --- | --- |
-| Backend API / application functionality (20) | `NAME` | Gig, booking, transaction, income, admin and user endpoints; Mongoose models; booking lifecycle; simulated payment and transaction records; income aggregation; API usage logging; seed data | [6](#6-backend-api) |
-| RBAC enforcement (15) | `NAME` | `protect` + `authorizeRoles` middleware, per-route role rules, ownership checks on gigs, bookings and transactions, admin-only routes, no Admin self-registration | [7](#7-role-based-access-control-rbac) |
-| API security: JWT, validation, sanitisation (15) | `NAME` | HttpOnly cookie JWT, account re-check on every request, express-validator rules, marketplace validators, NoSQL/XSS rejection, safe error handling, CSRF origin check | [8](#8-api-security-jwt-validation-and-sanitisation) |
-| Rate limiting and security headers (20) | `NAME` | `express-rate-limit` on auth and booking routes, Helmet configuration, API and frontend Content Security Policies, CORS | [9](#9-rate-limiting-and-security-headers) |
-| React frontend (10) | `NAME` | React 19 + Vite app, auth context, protected and role routes, client/freelancer/admin pages, error and loading states, HTTPS dev server | [10](#10-react-frontend) |
+| Backend API / application functionality (20) | `Ruan Helgaard Hartman` | Gig, booking, transaction, income, admin and user endpoints; Mongoose models; booking lifecycle; simulated payment and transaction records; income aggregation; API usage logging; seed data | [6](#6-backend-api) |
+| RBAC enforcement (15) | `Alexandro Ornelas` | `protect` + `authorizeRoles` middleware, per-route role rules, ownership checks on gigs, bookings and transactions, admin-only routes, no Admin self-registration | [7](#7-role-based-access-control-rbac) |
+| API security: JWT, validation, sanitisation (15) | `Clifford Naude` | HttpOnly cookie JWT, account re-check on every request, express-validator rules, marketplace validators, NoSQL/XSS rejection, safe error handling, CSRF origin check | [8](#8-api-security-jwt-validation-and-sanitisation) |
+| Rate limiting and security headers (20) | `Alexandro Ornelas` | `express-rate-limit` on auth and booking routes, Helmet configuration, API and frontend Content Security Policies, CORS | [9](#9-rate-limiting-and-security-headers) |
+| React frontend (10) | `Clifford Naude` | React 19 + Vite app, auth context, protected and role routes, client/freelancer/admin pages, error and loading states, HTTPS dev server | [10](#10-react-frontend) |
 | Backend testing, frontend testing, README, GitHub (20) | Caleb Forbes | Updated Part 1 tests for cookie auth; new RBAC/security tests; Part 2 Postman collection and Newman scripts; rate-limit demo; Vitest + React Testing Library suite; README; repository management | [11](#11-testing) |
 
 ---
@@ -753,17 +753,8 @@ npm run test:api     # Newman (backend must be running)
 
 ## 13. Demonstration video
 
-**Part 2 video (unlisted):** VIDEO_LINK_HERE
+**Part 2 video (unlisted):** https://youtu.be/LQNxDb0oLmY?si=-5chZ-dqDqb5B874
 
-The video shows:
-
-- registration and login
-- freelancer gig creation
-- client browsing and booking
-- the booking being viewed and completed
-- the transaction record and freelancer income
-- RBAC rejections
-- the test runs
 
 Part 1 video: <https://youtu.be/_TZ8-mItvcw>
 
