@@ -753,7 +753,7 @@ npm run test:api     # Newman (backend must be running)
 
 ## 13. Demonstration video
 
-**Part 2 video (unlisted):** https://youtu.be/LQNxDb0oLmY?si=-5chZ-dqDqb5B874
+**Part 2 video (unlisted):** https://youtu.be/XHeTo1fYRP4?si=5Fyyw8Du3gUsxQYT
 
 
 Part 1 video: <https://youtu.be/_TZ8-mItvcw>
