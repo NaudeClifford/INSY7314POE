@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 
+import AdminPagination from "../../components/dashboard/AdminPagination.jsx";
+
 function AdminAnalytics() {
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -8,7 +10,16 @@ function AdminAnalytics() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const [currentPage, setCurrentPage] = useState(1);
 
+    const rowsPerPage = 10;
+    
+    const startIndex = (currentPage - 1) * rowsPerPage;
+
+    const currentAnalytics = analytics.slice(
+        startIndex,
+        startIndex + rowsPerPage
+    );
 
     async function loadAnalytics() {
 
@@ -47,7 +58,8 @@ function AdminAnalytics() {
 
     useEffect(() => {
         loadAnalytics();
-    }, []);
+        setCurrentPage(1);
+    }, [analytics.length]);
 
     function formatDate(date) {
         if (!date) {
@@ -181,8 +193,8 @@ function AdminAnalytics() {
                                     </td>
                                 </tr>
                             ) : (
-                                analytics.map(
-                                    (item, index) => (
+                                    currentAnalytics.map(
+                                        (item, index) => (
                                         <tr
                                             key={
                                                 item._id ||
@@ -227,8 +239,15 @@ function AdminAnalytics() {
                                 )
                             )}
                         </tbody>
-                    </table>
+                    </table>               
                 </div>
+
+                    <AdminPagination
+                        currentPage={currentPage}
+                        totalItems={analytics.length}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setCurrentPage}
+                    />
             </div>
         </main>
     );

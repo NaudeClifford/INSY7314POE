@@ -11,7 +11,9 @@ const protect = async (req, res, next) => {
   try{
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id).select("_id role isActive");
+    //Search local first
+    let user = await User.findById(decoded.id).select("_id role isActive");
+  
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "Account is unavailable." });
     }

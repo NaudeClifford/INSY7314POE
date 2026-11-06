@@ -51,18 +51,18 @@ const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required." });
-    }
-
     // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      // Same message as "wrong password" below — don't reveal which one was wrong
-      return res.status(401).json({ message: "Invalid email or password." });
-    }
-    if (!user.isActive || !user.password) {
-      return res.status(401).json({ message: "Invalid email or password." });
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail
+    });
+
+    if (!user || !user.isActive || !user.password) {
+      return res.status(401).json({
+        message: "Invalid email or password."
+      });
     }
 
     // Compare submitted password against the stored hash
@@ -71,21 +71,27 @@ const loginUser = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is missing from environment variables.");
+    }
+    
     // Build the JWT payload — never put the password or other secrets in here
     const payload = {
       id: user._id,
       role: user.role
     };
 
-const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || "1h"
-});
+    const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "7d"
+    });
 
 res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 1000
+    sameSite: "none",
+    maxAge: SESSION_DURATION
 });
 
 res.status(200).json({
@@ -108,6 +114,7 @@ res.status(200).json({
 // @access  Private
 const getCurrentUser = async (req, res, next) => {
   try {
+
     const user = await User.findById(req.user.id).select("-password");
 
     if (!user) {
@@ -137,7 +144,8 @@ const logoutUser = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
-    sameSite: "lax"
+    sameSite: "none",
+    path: "/"
   });
 
   res.status(200).json({

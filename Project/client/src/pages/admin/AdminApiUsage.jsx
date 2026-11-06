@@ -1,8 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useMemo, useState } from "react";
+import AdminPagination from "../../components/dashboard/AdminPagination.jsx";
 
 function AdminApiUsage() {
     const API_URL = import.meta.env.VITE_API_URL;
+    
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [usage, setUsage] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,8 +16,7 @@ function AdminApiUsage() {
     const [selectedDay, setSelectedDay] = useState("");
     const [selectedMonth, setSelectedMonth] = useState("");
 
-
-
+    
     async function loadUsage() {
 
         try {
@@ -151,6 +153,19 @@ function AdminApiUsage() {
         selectedMonth
     ]);
 
+    const rowsPerPage = 10;
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+
+    const currentUsage = filteredUsage.slice(
+        startIndex,
+        startIndex + rowsPerPage
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterType, selectedDay, selectedMonth]);
+    
     const totalRequests = filteredUsage.reduce(
         (total, item) =>
             total + Number(item.requests || 0),
@@ -796,11 +811,8 @@ function AdminApiUsage() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredUsage.map(
-                                    (
-                                        item,
-                                        index
-                                    ) => (
+                                    currentUsage.map(
+                                        (item, index) => (
                                         <tr
                                             key={
                                                 item._id ??
@@ -844,7 +856,13 @@ function AdminApiUsage() {
                             )}
                         </tbody>
                     </table>
-                </div>
+               </div>
+                    <AdminPagination
+                       currentPage={currentPage}
+                        totalItems={filteredUsage.length}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setCurrentPage}
+                    />
             </div>
         </main>
     );
