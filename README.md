@@ -1,6 +1,6 @@
 # HustleHub+: Secure MERN Freelance Marketplace
 
-**INSY7314 POE, Part 2: Secure Stack** · Group 1
+**INSY7314 POE, Part 3: Secure Stack** · Group 1
 
 HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. **Freelancers** list services ("gigs"), **clients** browse and book them, and **admins** oversee the platform. Part 2 extends the Part 1 HTTPS + authentication backend into a complete, secured application with:
 
@@ -55,6 +55,23 @@ Part 2 was split by marking criterion.
 | Rate limiting and security headers (20) | `Alexandro Ornelas` | `express-rate-limit` on auth and booking routes, Helmet configuration, API and frontend Content Security Policies, CORS | [9](#9-rate-limiting-and-security-headers) |
 | React frontend (10) | `Clifford Naude` | React 19 + Vite app, auth context, protected and role routes, client/freelancer/admin pages, error and loading states, HTTPS dev server | [10](#10-react-frontend) |
 | Backend testing, frontend testing, README, GitHub (20) |  `Caleb Forbes` | Updated Part 1 tests for cookie auth; new RBAC/security tests; Part 2 Postman collection and Newman scripts; rate-limit demo; Vitest + React Testing Library suite; README; repository management | [11](#11-testing) |
+
+
+Part 3 was split by marking criterion
+| Area (marks) | Owner | What was delivered | README section |
+| --- | --- | --- | --- |
+|Docker Backend and Frontend (10) | `Ruan Helgaard Hartman` | The application is dockerized into containers | [6](#6-backend-api) |
+|Security Review in ReadMe (10) | `Ruan Helgaard Hartman` | Updated Readme | [6](#6-backend-api) |
+|ReadMe Updates (5) | `Ruan Helgaard Hartman` | Updated Readme | [6](#6-backend-api) |
+
+
+| CI/CD Pipeline Backend && Frontend (20) | `Alexandro Ornelas` | Work to be noted | [7](#7-role-based-access-control-rbac) |
+| Static Code Analysis (10) | `Alexandro Ornelas` | Work to be noted | [7](#7-role-based-access-control-rbac) |
+
+| Logging (10) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
+| 2 Security Features (15) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
+
+| Tax + Income Dashboard (20) | `Clifford Naude` | work to be noted | [8](#8-api-security-jwt-validation-and-sanitisation) |
 
 ---
 
@@ -753,6 +770,9 @@ npm run test:api     # Newman (backend must be running)
 
 ## 13. Demonstration video
 
+**Part 3 video (unlisted):** (to be added)
+
+
 **Part 2 video (unlisted):** https://youtu.be/XHeTo1fYRP4?si=5Fyyw8Du3gUsxQYT
 
 
@@ -762,7 +782,7 @@ Part 1 video: <https://youtu.be/_TZ8-mItvcw>
 
 ## 14. What changed from Part 1
 
-| Area | Part 1 | Part 2 |
+| Area | Part 1 | Part 2 | Part 3 |
 | --- | --- | --- |
 | Scope | Backend authentication only | Full MERN marketplace: gigs, bookings, transactions, income, admin |
 | Token storage | JWT in the response body, sent as `Authorization: Bearer` | `Secure` `HttpOnly` `SameSite=Lax` cookie, re-checked against the database on each request |
