@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import AdminPagination from "../../components/dashboard/AdminPagination.jsx";
 
 function AdminGigs() {
     const API_URL = import.meta.env.VITE_API_URL;
@@ -9,7 +10,20 @@ function AdminGigs() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const [currentPage, setCurrentPage] = useState(1);
 
+    const rowsPerPage = 10;
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+
+    const currentGigs = gigs.slice(
+        startIndex,
+        startIndex + rowsPerPage
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [gigs.length]);
 
     async function loadGigs() {
 
@@ -186,8 +200,8 @@ function AdminGigs() {
                                 </td>
                             </tr>
                         ) : (
-                            gigs.map((gig) => {
-                                const gigId =
+                                currentGigs.map((gig) => {
+                                  const gigId =
                                     gig._id || gig.id;
 
                                 const freelancer =
@@ -288,6 +302,12 @@ function AdminGigs() {
                     </tbody>
                 </table>
             </div>
+            <AdminPagination
+                currentPage={currentPage}
+                totalItems={gigs.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={setCurrentPage}
+            />
         </main>
     );
 }

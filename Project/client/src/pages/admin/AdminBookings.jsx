@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps -- Initial API loads update state asynchronously; API_URL is fixed at build time. */
 import { useEffect, useState } from "react";
+import AdminPagination from "../../components/dashboard/AdminPagination.jsx";
 
 function AdminBookings() {
     const API_URL = import.meta.env.VITE_API_URL;
@@ -7,8 +8,19 @@ function AdminBookings() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
 
+    const rowsPerPage = 10;
 
+    const startIndex = (currentPage - 1) * rowsPerPage;
+
+    const currentBookings = bookings.slice(
+        startIndex,
+        startIndex + rowsPerPage
+    );
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [bookings.length]);
 
     async function loadBookings() {
 
@@ -181,8 +193,8 @@ function AdminBookings() {
                                 </td>
                             </tr>
                         ) : (
-                            bookings.map(
-                                (booking) => {
+                                currentBookings.map(
+                                    (booking) => {
                                     const bookingId =
                                         booking._id ||
                                         booking.id;
@@ -298,6 +310,12 @@ function AdminBookings() {
                     </tbody>
                 </table>
             </div>
+            <AdminPagination
+                currentPage={currentPage}
+                totalItems={bookings.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={setCurrentPage}
+            />
         </main>
     );
 }

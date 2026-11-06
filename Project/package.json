@@ -13,7 +13,7 @@
     "seed": "npm run seed --prefix server"
   },
   "devDependencies": {
-    "concurrently": "^10.0.4",
+    "concurrently": "^10.0.6",
     "migrate-mongo": "^14.0.7",
     "newman": "^6.2.3",
     "newman-reporter-htmlextra": "^1.23.1"

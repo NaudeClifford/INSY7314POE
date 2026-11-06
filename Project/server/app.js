@@ -18,6 +18,9 @@ const apiUsageMiddleware = require("./middleware/apiUsageMiddleware");
 const app = express();
 const clientOrigin = process.env.CLIENT_ORIGIN || "https://localhost:5173";
 app.disable("x-powered-by");
+
+const isDevelopment = process.env.NODE_ENV === "development";
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -25,10 +28,14 @@ app.use(helmet({
       baseUri: ["'self'"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
+
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'"],
+
+      styleSrc: isDevelopment ? ["'self'", "'unsafe-inline'"] : ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", clientOrigin]
+      connectSrc: ["'self'", clientOrigin, ...(isDevelopment ? ["wss:", "ws:"] : [])],
+
+      workerSrc: isDevelopment ? ["'self'", "blob:"] : ["'self'"]
     }
   }
 }));

@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useLocation } from "react-router-dom";
 
 function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const registered = location.state?.registered;
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -18,8 +21,7 @@ function Login() {
         setLoading(true);
 
         try {
-            const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/auth/login`,
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`,
                 {
                     method: "POST",
                     credentials: "include",
@@ -35,10 +37,8 @@ function Login() {
 
             const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.message || "Login failed.");
-            }
-
+            if (!response.ok) throw new Error(data.message || "Login failed.");
+            
         login(data.user);
 
         if (data.user.role === "Admin") navigate("/admin");
@@ -50,10 +50,20 @@ function Login() {
         } finally {
             setLoading(false);
         }
+
+        
     }
 
     return (
         <section className="login-page">
+            {
+                registered && (
+                    <div className="success-message">
+                        Registration successful! Please log in with your new account.
+                    </div>
+                )
+            }
+
             <div className="login-card">
                 <h1>Welcome Back</h1>
 
