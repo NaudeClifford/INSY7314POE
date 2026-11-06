@@ -180,16 +180,35 @@ npm install --prefix client
 
 ### Step 2: Environment variables
 
-**Backend:** create `Project/.env` (copy `Project/.env.example`):
+**Backend:** create `server/.env`:
 
 ```env
 PORT=5000
-CLIENT_ORIGIN=https://localhost:5173
 MONGO_URI=mongodb://127.0.0.1:27017/
-MONGO_DB_NAME=hustlehub_dev
 JWT_SECRET=replace-with-a-long-random-string
-JWT_EXPIRES_IN=1h
+JWT_EXPIRES_IN=7d
 ```
+
+**Project Root:** create `Project/.env` (copy `Project/.env.example`):
+```emv
+MONGO_URI="local host using mongoDB compass or cloud using mongoDB atlas"
+
+//When deploying, set NODE_ENV to production
+NODE_ENV=development
+MONGO_DB_DEV=test
+MONGO_DB_PROD=INSY7314HustleHub+
+MONGO_DB_NAME="INSY7314HustleHub+"
+
+JWT_SECRET=node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+CLIENT_ORIGIN=https://localhost:5173
+
+SSL_KEY_PATH=server\certificates\localhost-key.pem
+SSL_CERT_PATH=server\certificates\localhost-cert.pem
+```
+Important Note, for development: NODE_ENV=development
+For Production: NODE_ENV=production
+This switches DBs from testing seeded data to production data and prevents accidental mix of data.
 
 > `MONGO_DB_NAME` must contain `dev`, `local` or `test`. The seed script refuses to run on any other name, so it can never wipe a production database.
 > Generate a strong secret with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
