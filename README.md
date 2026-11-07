@@ -871,11 +871,6 @@ The [CI workflow](.github/workflows/ci.yml) runs for every push and pull request
 
 [Screenshot: Classroom50 GitHub Actions “CI and static analysis” run showing the backend, frontend, API integration, SonarQube skip and final `ci-result` statuses.]
 
-#### `Autograde` in this Classroom50 repository
-
-The [Autograde workflow](.github/workflows/autograde.yaml) is separate from application CI. It runs on pushes to `main` and tags matching `submit/*`, then delegates grading to Classroom50's reusable `EMGPRS/classroom50/.github/workflows/autograde-runner.yaml@main`. Its permissions allow the reusable runner to read and update repository contents and statuses and to open its optional feedback pull request. The grading steps are defined by that external reusable workflow; this repository does not redefine them or use its status as a substitute for `ci-result`.
-
-[Screenshot: Classroom50 GitHub Actions Autograde run, with its grade job and resulting status.]
 
 #### `CI and static analysis` in the SonarQube test repository
 
