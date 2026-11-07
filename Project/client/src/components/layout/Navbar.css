@@ -1,5 +1,5 @@
 .navbar {
-    background: url("/background3.webp") center / cover no-repeat;
+    background: #000;
     border-bottom: 1px solid white;
 }
 
@@ -67,13 +67,15 @@
     color: black;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1100px) {
     .navbar-container {
         flex-direction: column;
-        gap: 6px;
+        gap: 10px;
+        padding-block: 14px;
     }
 
     .navbar-links {
         justify-content: center;
+        row-gap: 8px;
     }
 }

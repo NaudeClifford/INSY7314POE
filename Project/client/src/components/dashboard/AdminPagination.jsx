@@ -1,6 +1,6 @@
 
 import "../../index.css";
-import { useEffect, useState } from "react";
+import { useRef } from "react";
 
 function AdminPagination({
     currentPage,
@@ -10,12 +10,7 @@ function AdminPagination({
 }) {
     const totalPages = Math.ceil(totalItems / rowsPerPage);
 
-    const [pageInput, setPageInput] = useState(
-        String(currentPage)
-    );
-    useEffect(() => {
-        setPageInput(String(currentPage));
-    }, [currentPage]);
+    const pageInputRef = useRef(null);
 
     if (totalPages <= 1) return null;
 
@@ -26,10 +21,10 @@ function AdminPagination({
     );
 
     function goToPage() {
-        const requestedPage = Number(pageInput);
+        const requestedPage = Number(pageInputRef.current.value);
 
         if (!Number.isInteger(requestedPage)) {
-            setPageInput(String(currentPage));
+            pageInputRef.current.value = String(currentPage);
             return;
         }
 
@@ -39,7 +34,7 @@ function AdminPagination({
         );
 
         onPageChange(validPage);
-        setPageInput(String(validPage));
+        pageInputRef.current.value = String(validPage);
     }
 
     function handleKeyDown(event) {
@@ -110,10 +105,9 @@ function AdminPagination({
                         type="number"
                         min="1"
                         max={totalPages}
-                        value={pageInput}
-                        onChange={(event) =>
-                            setPageInput(event.target.value)
-                        }
+                        key={currentPage}
+                        ref={pageInputRef}
+                        defaultValue={currentPage}
                         onKeyDown={handleKeyDown}
                     />
 
