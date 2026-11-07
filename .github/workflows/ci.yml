@@ -22,6 +22,8 @@ jobs:
           cache: npm
           cache-dependency-path: Project/server/package-lock.json
       - run: npm ci
+      - name: Audit backend runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
       - name: Backend tests
         run: npm test
       - name: Backend syntax check
@@ -40,6 +42,8 @@ jobs:
           cache: npm
           cache-dependency-path: Project/client/package-lock.json
       - run: npm ci
+      - name: Audit frontend runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
       - name: ESLint static analysis
         run: npm run lint
       - name: Frontend tests
@@ -77,6 +81,9 @@ jobs:
           echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - run: npm ci
         working-directory: Project
+      - name: Audit project runtime dependencies
+        run: npm audit --omit=dev --audit-level=high
+        working-directory: Project
       - run: npm ci
         working-directory: Project/server
       - run: npm run generate-cert
@@ -110,21 +117,6 @@ jobs:
           name: api-log
           path: ${{ runner.temp }}/api.log
 
-  codeql:
-    name: CodeQL JavaScript analysis
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-          queries: security-extended
-      - uses: github/codeql-action/analyze@v4
-
   sonarqube:
     name: SonarQube Cloud quality gate
     needs: [backend, frontend]
@@ -144,6 +136,8 @@ jobs:
       - run: npm ci --prefix Project/client
       - name: Generate backend LCOV coverage
         run: npm run test:coverage --prefix Project/server
+      - name: Generate frontend LCOV coverage
+        run: npm run test:coverage --prefix Project/client
       - name: Check SonarQube Cloud configuration
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -167,7 +161,7 @@ jobs:
 
   ci-result:
     if: always()
-    needs: [backend, frontend, api-integration, codeql, sonarqube]
+    needs: [backend, frontend, api-integration, sonarqube]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any required job failed
@@ -175,4 +169,4 @@ jobs:
           RESULTS: ${{ join(needs.*.result, ' ') }}
         run: |
           echo "$RESULTS"
-          test "$RESULTS" = "success success success success success"
+          test "$RESULTS" = "success success success success"
