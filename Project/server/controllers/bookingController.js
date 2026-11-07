@@ -1,6 +1,7 @@
 const Booking = require("../models/Booking");
 const Gig = require("../models/Gig");
 const Transaction = require("../models/Transaction");
+const mongoose = require("mongoose");
 
 const isParty = (booking, user) => user.role === "Admin" ||
   booking.clientId.toString() === user.id || booking.freelancerId.toString() === user.id;
@@ -8,7 +9,12 @@ const isParty = (booking, user) => user.role === "Admin" ||
 // Payment is simulated. All financial values come from the gig, never the request.
 exports.createBooking = async (req, res, next) => {
   try {
-    const gig = await Gig.findOne({ _id: req.body.gigId, status: "active", isActive: true });
+    const rawGigId = req.body?.gigId;
+    if (typeof rawGigId !== "string" || !mongoose.isValidObjectId(rawGigId)) {
+      return res.status(400).json({ message: "Choose a valid gig and booking date." });
+    }
+    const gigId = new mongoose.Types.ObjectId(rawGigId);
+    const gig = await Gig.findOne({ _id: gigId, status: "active", isActive: true });
     if (!gig) return res.status(404).json({ message: "This gig is unavailable." });
     if (gig.freelancerId.toString() === req.user.id) {
       return res.status(403).json({ message: "You cannot book your own gig." });
@@ -24,9 +30,10 @@ exports.createBooking = async (req, res, next) => {
     try {
       const amount = Math.round(gig.price * 100) / 100;
       const platformFee = Math.round(amount * 0.1 * 100) / 100;
-      const taxableIncome = amount - platformFee;
-      const taxAmount = Math.round(taxableIncome * 0.15 * 100) / 100;
-      const freelancerAmount = Math.round((taxableIncome - taxAmount) * 100) / 100;
+      // The platform does not withhold income tax. The dashboard estimates
+      // personal tax over the tax year from completed earnings.
+      const taxAmount = 0;
+      const freelancerAmount = Math.round((amount - platformFee) * 100) / 100;
       const transaction = await Transaction.create({
         bookingId: booking._id,
         clientId: booking.clientId,

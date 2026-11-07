@@ -33,6 +33,7 @@ HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. 
 13. [Demonstration video](#13-demonstration-video)
 14. [What changed from Part 1](#14-what-changed-from-part-1)
 15. [References](#15-references)
+16. [Part 3 income, CI and static analysis](#16-part-3-income-ci-and-static-analysis)
 
 ---
 
@@ -65,13 +66,13 @@ Part 3 was split by marking criterion
 |ReadMe Updates (5) | `Ruan Helgaard Hartman` | Updated Readme | [6](#6-backend-api) |
 
 
-| CI/CD Pipeline Backend && Frontend (20) | `Alexandro Ornelas` | Work to be noted | [7](#7-role-based-access-control-rbac) |
-| Static Code Analysis (10) | `Alexandro Ornelas` | Work to be noted | [7](#7-role-based-access-control-rbac) |
+| CI/CD Pipeline Backend && Frontend (20) | `Alexandro Ornelas` | GitHub Actions backend, frontend, Newman and build checks | [16](#16-part-3-income-ci-and-static-analysis) |
+| Static Code Analysis (10) | `Alexandro Ornelas` | ESLint and backend syntax check here; SonarQube Cloud evidence in the companion repository | [16](#16-part-3-income-ci-and-static-analysis) |
 
 | Logging (10) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
 | 2 Security Features (15) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
 
-| Tax + Income Dashboard (20) | `Clifford Naude` | work to be noted | [8](#8-api-security-jwt-validation-and-sanitisation) |
+| Tax + Income Dashboard (20) | `Clifford Naude` | SARS 2027 progressive estimate and responsive earnings dashboard | [16](#16-part-3-income-ci-and-static-analysis) |
 
 ---
 
@@ -830,3 +831,25 @@ Part 1 video: <https://youtu.be/_TZ8-mItvcw>
 - React. 2026. *React documentation*. Available at: <https://react.dev/>
 - Testing Library. 2026. *React Testing Library*. Available at: <https://testing-library.com/docs/react-testing-library/intro/>
 - Vitest. 2026. *Vitest guide*. Available at: <https://vitest.dev/guide/>
+
+---
+
+## 16. Part 3 income, CI and static analysis
+
+### Income and tax dashboard
+
+The freelancer `/income` page now uses completed bookings in the current South African tax year (1 March to 28 February). The API groups earnings by **booking completion date**, rather than booking creation date, and returns twelve monthly values plus gross earnings, platform fees, estimated taxable platform income, indicative tax and income after estimated tax. The dashboard displays the same summary and links to the calculation.
+
+The estimate uses the [SARS 2027 individual tax brackets and primary rebate](https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/). It applies the progressive bracket to completed earnings less platform fees, subtracts the R17,820 primary rebate and floors the result at zero. For example, R120,000 completed earnings less R12,000 fees gives R108,000 taxable platform income; 18% is R19,440, less the rebate gives **R1,620 estimated tax**. The estimate assumes an individual under 65 with no other income, expenses, deductions or tax credits. It is not tax withheld, a final tax assessment or a replacement for tax advice. Rates should be reviewed when SARS publishes a new tax year.
+
+New simulated transactions no longer deduct a flat 15% tax. Existing transactions keep their recorded values, and the income page shows historical simulated deductions separately when present. The monthly chart shows earnings after platform fees and before estimated tax. Empty months, mobile layouts and large currency values are handled without overlapping labels or cards.
+
+### CI/CD pipeline
+
+`.github/workflows/ci.yml` runs on pushes, pull requests and manual dispatch. Its three required jobs install dependencies with `npm ci`, run backend tests and syntax checks, run frontend ESLint and Vitest, build the production frontend, and run the Postman/Newman API collection against a temporary MongoDB service and HTTPS API. The Newman HTML report is uploaded as a workflow artifact; API logs are uploaded if the integration job fails. SonarQube Cloud analysis is an optional fourth job, enabled only when `SONAR_ENABLED` is set to `true` in this repository. The final `ci-result` job requires all three core jobs and also requires SonarQube when it is enabled. Deployment is optional in the rubric and is not configured here.
+
+The existing Classroom50 autograde workflow remains separate. The integration job seeds only its isolated `hustlehub_ci` database. CI credentials are test-only environment values; production secrets belong in the repository's GitHub Actions secrets or deployment environment, never in source control.
+
+### Static analysis
+
+Frontend ESLint, backend `node --check`, and runtime dependency audits run in this repository's CI and fail the workflow on errors. The Classroom50 organization currently blocks connecting SonarQube Cloud here, so its Sonar job is skipped by default. Sonar analysis and quality-gate evidence comes from the [companion SonarQube test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test), which contains the same application changes. Both `npm run test:coverage --prefix Project/server` and `npm run test:coverage --prefix Project/client` work locally without MongoDB, and `sonar-project.properties` imports their LCOV reports. If the organization later permits the connection, set `SONAR_ENABLED=true` only after configuring this repository's `SONAR_TOKEN` secret and `SONAR_ORGANIZATION` and `SONAR_PROJECT_KEY` variables; the enabled Sonar job waits for the quality gate and fails CI when it fails. See [Part 3 static analysis evidence and setup](docs/Part3-Static-Analysis.md).

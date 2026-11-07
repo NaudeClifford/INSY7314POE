@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 function Dashboard() {
     const API_URL = import.meta.env.VITE_API_URL;
+    const money = value => new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" }).format(Number(value) || 0);
 
     const [dashboard, setDashboard] = useState({
         activeGigs: 0,
@@ -68,7 +69,7 @@ function Dashboard() {
             }
         }
 
-        loadDashboardData();
+        void loadDashboardData();
     }, [API_URL]);
 
     if (loading) {
@@ -111,12 +112,12 @@ function Dashboard() {
 
                 <div className="stat-card">
                     <span>Gross Income</span>
-                    <strong>R{dashboard.grossIncome}</strong>
+                    <strong>{money(dashboard.grossIncome)}</strong>
                 </div>
 
                 <div className="stat-card">
                     <span>Estimated Tax</span>
-                    <strong>R{dashboard.taxAmount}</strong>
+                    <strong>{money(dashboard.taxAmount)}</strong>
                 </div>
 
             </div>
@@ -131,25 +132,27 @@ function Dashboard() {
 
                         <div>
                             <span>Gross Income</span>
-                            <strong>R{dashboard.grossIncome}</strong>
+                            <strong>{money(dashboard.grossIncome)}</strong>
                         </div>
 
                         <div>
                             <span>Platform Fees</span>
-                            <strong>R{dashboard.platformFees}</strong>
+                            <strong>{money(dashboard.platformFees)}</strong>
                         </div>
 
                         <div>
                             <span>Estimated Tax</span>
-                            <strong>R{dashboard.taxAmount}</strong>
+                            <strong>{money(dashboard.taxAmount)}</strong>
                         </div>
 
                         <div className="income-total">
                             <span>Estimated Net</span>
-                            <strong>R{dashboard.netIncome}</strong>
+                            <strong>{money(dashboard.netIncome)}</strong>
                         </div>
 
                     </div>
+
+                    <p><Link to="/income">View tax calculation and monthly earnings</Link></p>
 
                 </section>
 
