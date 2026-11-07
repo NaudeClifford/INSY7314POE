@@ -119,6 +119,8 @@ jobs:
 
   sonarqube:
     name: SonarQube Cloud quality gate
+    # Classroom50 currently blocks the SonarQube connection. Enable only after access is granted.
+    if: ${{ vars.SONAR_ENABLED == 'true' }}
     needs: [backend, frontend]
     runs-on: ubuntu-latest
     steps:
@@ -160,13 +162,24 @@ jobs:
             -Dsonar.qualitygate.wait=true
 
   ci-result:
-    if: always()
+    if: ${{ always() }}
     needs: [backend, frontend, api-integration, sonarqube]
     runs-on: ubuntu-latest
     steps:
-      - name: Fail if any required job failed
+      - name: Check required jobs and optional SonarQube gate
         env:
-          RESULTS: ${{ join(needs.*.result, ' ') }}
+          BACKEND_RESULT: ${{ needs.backend.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
+          API_RESULT: ${{ needs['api-integration'].result }}
+          SONAR_RESULT: ${{ needs.sonarqube.result }}
+          SONAR_ENABLED: ${{ vars.SONAR_ENABLED }}
         run: |
-          echo "$RESULTS"
-          test "$RESULTS" = "success success success success"
+          echo "backend=$BACKEND_RESULT frontend=$FRONTEND_RESULT api=$API_RESULT sonar=$SONAR_RESULT"
+          test "$BACKEND_RESULT" = "success"
+          test "$FRONTEND_RESULT" = "success"
+          test "$API_RESULT" = "success"
+          if [ "$SONAR_ENABLED" = "true" ]; then
+            test "$SONAR_RESULT" = "success"
+          else
+            test "$SONAR_RESULT" = "skipped"
+          fi
