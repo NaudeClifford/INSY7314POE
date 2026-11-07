@@ -2,7 +2,7 @@
 
 **INSY7314 POE, Part 3: Secure Stack** · Group 1
 
-HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. **Freelancers** list services ("gigs"), **clients** browse and book them, and **admins** oversee the platform. Part 2 extends the Part 1 HTTPS + authentication backend into a complete, secured application with:
+HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. **Freelancers** list services ("gigs"), **clients** browse and book them, and **admins** oversee the platform. Part 2 extended the Part 1 HTTPS and authentication backend into a secured application. Part 3 adds an income and tax dashboard, CI checks, and SonarQube Cloud analysis in a companion repository. The application includes:
 
 - a marketplace API (gigs, bookings, transactions and income)
 - role-based access control (RBAC)
@@ -11,6 +11,8 @@ HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. 
 - security headers with a Content Security Policy
 - a React frontend
 - automated backend and frontend tests
+- tax-year income summaries and an indicative SARS-based tax estimate
+- GitHub Actions checks for tests, builds, API integration, and static analysis
 
 > The Part 1 architecture report, diagram and screenshots are kept in [`docs/Part1-Report.md`](docs/Part1-Report.md).
 
@@ -58,20 +60,17 @@ Part 2 was split by marking criterion.
 | Backend testing, frontend testing, README, GitHub (20) |  `Caleb Forbes` | Updated Part 1 tests for cookie auth; new RBAC/security tests; Part 2 Postman collection and Newman scripts; rate-limit demo; Vitest + React Testing Library suite; README; repository management | [11](#11-testing) |
 
 
-Part 3 was split by marking criterion
+Part 3 was split by marking criterion.
+
 | Area (marks) | Owner | What was delivered | README section |
 | --- | --- | --- | --- |
-|Docker Backend and Frontend (10) | `Ruan Helgaard Hartman` | The application is dockerized into containers | [6](#6-backend-api) |
-|Security Review in ReadMe (10) | `Ruan Helgaard Hartman` | Updated Readme | [6](#6-backend-api) |
-|ReadMe Updates (5) | `Ruan Helgaard Hartman` | Updated Readme | [6](#6-backend-api) |
-
-
+| Docker Backend and Frontend (10) | `Ruan Helgaard Hartman` | The application is dockerized into containers | [6](#6-backend-api) |
+| Security Review in README (10) | `Ruan Helgaard Hartman` | Updated README | [6](#6-backend-api) |
+| README Updates (5) | `Ruan Helgaard Hartman` | Updated README | [6](#6-backend-api) |
 | CI/CD Pipeline Backend && Frontend (20) | `Alexandro Ornelas` | GitHub Actions backend, frontend, Newman and build checks | [16](#16-part-3-income-ci-and-static-analysis) |
 | Static Code Analysis (10) | `Alexandro Ornelas` | ESLint and backend syntax check here; SonarQube Cloud evidence in the companion repository | [16](#16-part-3-income-ci-and-static-analysis) |
-
 | Logging (10) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
 | 2 Security Features (15) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
-
 | Tax + Income Dashboard (20) | `Clifford Naude` | SARS 2027 progressive estimate and responsive earnings dashboard | [16](#16-part-3-income-ci-and-static-analysis) |
 
 ---
@@ -293,8 +292,8 @@ When a client books a gig (`POST /api/bookings`):
 | --- | --- | --- |
 | `amount` | gig price | R1 000.00 |
 | `platformFee` | 10% of amount | R100.00 |
-| `taxAmount` | 15% of (amount - fee) | R135.00 |
-| `freelancerAmount` | amount - fee - tax | R765.00 |
+| `taxAmount` | R0.00 for new transactions; the annual estimate is calculated separately | R0.00 |
+| `freelancerAmount` | amount - fee | R900.00 |
 | `invoiceNumber` | `INV-<bookingId>` | `INV-6650…` |
 
 If the transaction cannot be saved, the booking is rolled back, so a booking never exists without its transaction.
@@ -319,10 +318,12 @@ stateDiagram-v2
 
 ### 6.4 Income tracking
 
-`GET /api/income` returns the logged-in freelancer's totals from transactions whose booking is completed:
+`GET /api/income` returns the logged-in freelancer's current South African tax-year totals from completed transactions and bookings. It groups each payment by the booking's completion date:
 
-- **summary:** `gross`, `fees`, `tax` and `net`
-- **monthlyIncome:** net income grouped by month, used by the income page
+- **period:** tax year and its 1 March to 28 February bounds
+- **summary:** gross earnings, platform fees, taxable platform income, estimated annual tax, income after estimated tax, and any historical recorded tax deductions
+- **monthlyIncome:** twelve months of earnings after fees and before estimated tax
+- **taxMethod:** the rate year, primary rebate, SARS source, and calculation assumptions
 
 ### 6.5 Admin and monitoring
 
@@ -606,10 +607,10 @@ The frontend is a React 19 single-page app built with Vite and React Router 7. I
 
 | Suite | Tool | Location | Result |
 | --- | --- | --- | --- |
-| Backend unit/integration | `node --test` | `Project/server/test/` | 35 tests, 35 passed |
+| Backend unit/integration | `node --test` | `Project/server/test/` | Run by CI |
 | API end-to-end | Postman + Newman | `PostmanCollection/` | 69 requests, 169 assertions |
 | Rate-limit demo | Newman (35 iterations) | `PostmanCollection/` | `429` after 30 attempts |
-| Frontend | Vitest + React Testing Library | `Project/client/src/__tests__/` | 6 files, 29 tests, 29 passed |
+| Frontend | Vitest + React Testing Library | `Project/client/src/__tests__/` | Run by CI |
 
 Run every command from the `Project` folder.
 
@@ -619,7 +620,7 @@ Run every command from the `Project` folder.
 npm run test:server
 ```
 
-The tests start the real Express app over HTTPS on a random port. Database calls are stubbed, so **MongoDB is not needed**.
+The API tests start the real Express app over HTTPS on a random port. Controller and model tests isolate database calls, so **MongoDB is not needed** for this suite.
 
 - **`api.test.js`** (Part 1, updated for cookie auth) covers:
   - HTTPS and the certificate
@@ -632,7 +633,7 @@ The tests start the real Express app over HTTPS on a random port. Database calls
   - RBAC for gigs, bookings, admin and income
   - ownership of gigs and transactions
   - owner spoofing and price tampering
-  - transaction fee, tax and net calculation
+  - transaction fee and payout calculation; annual tax estimation has separate tests
   - XSS and NoSQL-injection rejection, and invalid IDs
   - both rate limiters returning `429`
 
@@ -725,11 +726,11 @@ npm run test:api     # Newman (backend must be running)
 
 <img width="868" height="504" alt="07-transactions" src="https://github.com/user-attachments/assets/669acd6d-f05d-4a74-a3cd-fae46a80a34b" />
 
-*Figure 6: The transaction record created by a completed booking: R5 000 gross, a 10% platform fee (R500), 15% tax (R675) and R3 825 net to the freelancer.*
+*Figure 6: Historical Part 2 transaction screenshot showing R5 000 gross, a R500 platform fee and the former flat simulated tax deduction. Part 3 records no tax deduction on new transactions; its tax-year estimate appears on the income page.*
 
 <img width="767" height="886" alt="08-income" src="https://github.com/user-attachments/assets/09b29af1-ab67-4585-8075-3054b84cc8b0" />
 
-*Figure 7: Income tracking totals the freelancer's completed transactions and shows a monthly breakdown.*
+*Figure 7: Historical Part 2 income screenshot. The Part 3 income page now shows the current tax year, twelve monthly values and a separate annual tax estimate.*
 
 ### 12.3 Client: Booking a gig
 
@@ -838,18 +839,84 @@ Part 1 video: <https://youtu.be/_TZ8-mItvcw>
 
 ### Income and tax dashboard
 
-The freelancer `/income` page now uses completed bookings in the current South African tax year (1 March to 28 February). The API groups earnings by **booking completion date**, rather than booking creation date, and returns twelve monthly values plus gross earnings, platform fees, estimated taxable platform income, indicative tax and income after estimated tax. The dashboard displays the same summary and links to the calculation.
+The freelancer `/income` page uses completed bookings in the current South African tax year (1 March to 28 February). The API groups earnings by **booking completion date**, rather than booking creation date, and returns twelve monthly values plus gross earnings, platform fees, estimated taxable platform income, indicative tax and income after estimated tax. The dashboard shows the same figures and explains the calculation.
 
-The estimate uses the [SARS 2027 individual tax brackets and primary rebate](https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/). It applies the progressive bracket to completed earnings less platform fees, subtracts the R17,820 primary rebate and floors the result at zero. For example, R120,000 completed earnings less R12,000 fees gives R108,000 taxable platform income; 18% is R19,440, less the rebate gives **R1,620 estimated tax**. The estimate assumes an individual under 65 with no other income, expenses, deductions or tax credits. It is not tax withheld, a final tax assessment or a replacement for tax advice. Rates should be reviewed when SARS publishes a new tax year.
+The estimate uses the [SARS 2027 individual tax brackets and primary rebate](https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/). It applies the progressive bracket to completed earnings less platform fees, subtracts the R17,820 primary rebate and floors the result at zero. For example, R120,000 completed earnings less R12,000 fees gives R108,000 taxable platform income; 18% is R19,440, less the rebate gives **R1,620 estimated tax**. It assumes an individual under 65 with no other income, expenses, deductions or tax credits. It is an estimate, not tax withheld or a final tax assessment. The fixed 2027 rates require review for future tax years.
 
-New simulated transactions no longer deduct a flat 15% tax. Existing transactions keep their recorded values, and the income page shows historical simulated deductions separately when present. The monthly chart shows earnings after platform fees and before estimated tax. Empty months, mobile layouts and large currency values are handled without overlapping labels or cards.
+New simulated transactions deduct the 10% platform fee and record zero tax withheld. Older transactions retain their recorded amounts; the income page shows any historical simulated tax deductions separately. The monthly chart shows earnings after platform fees and before estimated tax. The income cards and chart accommodate empty months, mobile screens and large currency values.
 
-### CI/CD pipeline
+[Screenshot: Part 3 income and tax dashboard showing the tax-year heading, summary cards, twelve-month chart and calculation breakdown.]
 
-`.github/workflows/ci.yml` runs on pushes, pull requests and manual dispatch. Its three required jobs install dependencies with `npm ci`, run backend tests and syntax checks, run frontend ESLint and Vitest, build the production frontend, and run the Postman/Newman API collection against a temporary MongoDB service and HTTPS API. The Newman HTML report is uploaded as a workflow artifact; API logs are uploaded if the integration job fails. SonarQube Cloud analysis is an optional fourth job, enabled only when `SONAR_ENABLED` is set to `true` in this repository. The final `ci-result` job requires all three core jobs and also requires SonarQube when it is enabled. Deployment is optional in the rubric and is not configured here.
+### Repository used for SonarQube Cloud
 
-The existing Classroom50 autograde workflow remains separate. The integration job seeds only its isolated `hustlehub_ci` database. CI credentials are test-only environment values; production secrets belong in the repository's GitHub Actions secrets or deployment environment, never in source control.
+This is the Classroom50 repository. The Classroom50 organization blocked SonarQube Cloud access to it, and it could not be forked. A separate [HustleHub Part 3 SonarQube test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test) was therefore created as a copy of the application so the GitHub Actions scan could run. The copy has its own commit history; it is not a fork or a SonarQube scan of this Classroom50 repository. Application fixes from the test repository were brought back here. All SonarQube Cloud results described below came from the **test repository's** Cloud project, not this repository.
 
-### Static analysis
+The Classroom50 workflow retains a conditional SonarQube job, but the organization restriction means it is skipped by default. Its required backend, frontend, API integration and final status checks still run. The test repository's workflow runs the SonarQube job as a required check and waits for the Cloud quality gate.
 
-Frontend ESLint, backend `node --check`, and runtime dependency audits run in this repository's CI and fail the workflow on errors. The Classroom50 organization currently blocks connecting SonarQube Cloud here, so its Sonar job is skipped by default. Sonar analysis and quality-gate evidence comes from the [companion SonarQube test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test), which contains the same application changes. Both `npm run test:coverage --prefix Project/server` and `npm run test:coverage --prefix Project/client` work locally without MongoDB, and `sonar-project.properties` imports their LCOV reports. If the organization later permits the connection, set `SONAR_ENABLED=true` only after configuring this repository's `SONAR_TOKEN` secret and `SONAR_ORGANIZATION` and `SONAR_PROJECT_KEY` variables; the enabled Sonar job waits for the quality gate and fails CI when it fails. See [Part 3 static analysis evidence and setup](docs/Part3-Static-Analysis.md).
+### GitHub Actions pipelines and workflows
+
+#### `CI and static analysis` in this Classroom50 repository
+
+The [CI workflow](.github/workflows/ci.yml) runs for every push and pull request and can also be started manually. GitHub-hosted Ubuntu runners use Node.js 22 and lockfile-based `npm ci` installs. Its jobs run independently unless a dependency is stated:
+
+| Job | Work performed | What makes it fail |
+| --- | --- | --- |
+| `backend` | Installs `Project/server` dependencies, checks high or critical **runtime** dependency advisories, runs the Node.js backend test suite, and parses every backend JavaScript file with `node --check`. | A dependency audit, test or syntax check fails. |
+| `frontend` | Installs `Project/client` dependencies, checks high or critical runtime advisories, runs ESLint and Vitest, then builds the production React bundle with Vite. | An audit, lint rule, test or build fails. |
+| `api-integration` | Starts a health-checked MongoDB 7 service, generates a temporary JWT secret, installs the root and backend packages, audits root runtime dependencies, creates the test HTTPS certificate, seeds only the `hustlehub_ci` database, starts the HTTPS API, waits for its health endpoint, and runs the Postman collection through Newman. | Installation, audit, database seed, API startup, health check or a Newman assertion fails. |
+| `sonarqube` | When enabled, waits for `backend` and `frontend`, generates backend and frontend LCOV reports, checks for the Cloud credentials, runs `SonarSource/sonarqube-scan-action@v8.3.0`, and waits for the quality gate. | Required configuration is missing, analysis fails, or the Cloud quality gate fails. It is **skipped by default here** because the organization blocks the connection. |
+| `ci-result` | Runs even when an earlier job fails. It requires `backend`, `frontend` and `api-integration` to succeed. It requires `sonarqube` to have been skipped when disabled, or to succeed when enabled. | Any required result differs from the expected status. |
+
+`api-integration` uploads the Newman HTML report as a `newman-report` artifact even when the test job fails; on failure it also uploads the API log. The MongoDB service and generated secret exist only for that CI run. The workflow does not deploy the application.
+
+[Screenshot: Classroom50 GitHub Actions “CI and static analysis” run showing the backend, frontend, API integration, SonarQube skip and final `ci-result` statuses.]
+
+
+#### `CI and static analysis` in the SonarQube test repository
+
+The [test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test) has the same backend, frontend and Newman integration checks. Its `sonarqube` job is **required** rather than conditional. It starts only after backend and frontend checks succeed, installs both packages, creates their LCOV coverage reports, and scans the source with the official SonarQube action. The action waits for the SonarQube Cloud quality gate, so a completed scan with a failed gate fails the job. Its final `ci-result` requires all four jobs to succeed; a skipped or failed SonarQube job cannot produce a green result. The test repository did not retain CodeQL as a second scanner because GitHub code scanning was unavailable there; SonarQube Cloud supplied the static analysis and quality gate.
+
+The [Sonar project configuration](sonar-project.properties) scans `Project/server` and `Project/client/src`, identifies test directories separately, and imports backend and frontend LCOV reports. Generated files, dependencies and tests are excluded from source analysis. One-off backend CLI scripts are excluded from **coverage**; application controllers, models, pages and the frontend entry point remain in scope. This distinction matters because an untested source file appears as uncovered in SonarQube Cloud even if a test runner's own report lists only imported files.
+
+[Screenshot: SonarQube test repository GitHub Actions run showing backend, frontend, API integration, SonarQube Cloud quality gate and `ci-result` passing.]
+
+### SonarQube Cloud analysis and fixes
+
+The values below are **historical Cloud snapshots from the test repository**. They describe what SonarQube Cloud displayed at different scans, not a current measurement of this Classroom50 repository. A green new-code gate does not mean every finding in overall code has been resolved.
+
+#### Initial project health and code findings
+
+The first Cloud overview showed a passing quality gate alongside **38 overall-code issues**, **43.9% overall coverage** and **1.4% duplication**. Its security snapshot showed rating **E** and four security issues; reliability was **C** with 34 issues; maintainability was **A** with four issues; security hotspots showed **A** and zero hotspots. This prompted a review of the issue list despite the passing gate.
+
+[Screenshot: SonarQube Cloud test-project overview showing the initial quality gate, 38 issues, 43.9% coverage and 1.4% duplication.]
+
+| Cloud finding | Change made in the application |
+| --- | --- |
+| Three Blocker NoSQL injection issues in registration, booking creation and gig search | Registration uses a scalar email equality filter. Booking creation converts a validated gig ID to a MongoDB `ObjectId`. Gig search uses fixed query fields, escaped literal search text and numeric bounds. These changes prevent request data from becoming MongoDB query operators. |
+| Medium reliability findings for unhandled promises across page loaders and navigation | Async effect loaders explicitly start with `void` and handle their own errors; async navigation is awaited where appropriate. Server startup and seed entry points handle rejected promises. |
+| Super-linear email-validation regex in the admin controller | Replaced the expression with bounded, deterministic checks so long crafted input does not cause excessive backtracking. |
+| Number parsing style and reliability findings in the create-gig form | Uses `Number.parseFloat`, `Number.parseInt` and `Number.isNaN` for the numeric inputs. |
+
+[Screenshot: SonarQube Cloud issue list showing the three original Blocker NoSQL injection findings and the affected files.]
+
+#### Coverage and the quality gate
+
+A later Cloud scan reported **30.26% coverage on 74 new lines**, below the Sonar way gate's **80% new-code coverage** condition. It showed **zero new issues**, but the gate still failed. Backend coverage had been imported while frontend source appeared at 0% because its LCOV report was missing from the scan. The CI scan was changed to generate and import both reports, and tests were added around changed page loaders, navigation and validation. A later GitHub Actions run showed the SonarQube Cloud quality-gate job passing. That passing run does not establish a new overall-coverage percentage by itself.
+
+The Cloud coverage views subsequently showed **57.1%**, then **59% overall coverage**. The 59% view identified large gaps in admin, user and transaction controllers and in several admin, booking and transaction pages. Tests were added for access control, status changes, filtering, deletion and rendered user interactions. Coverage reporting was expanded to include all frontend source files; an unused `AppRoutes.jsx` file with stale imports was removed. The API helper was also fixed to preserve default JSON headers when callers provide other headers. A further Cloud scan is needed to establish the effect of those later changes on the overall figure.
+
+[Screenshot: SonarQube Cloud failed quality gate showing 30.26% new-code coverage against the 80% condition.]
+
+[Screenshot: SonarQube Cloud overall coverage view showing the later 59% figure and the lowest-covered application files.]
+
+#### Dependency risks and the remaining security finding
+
+SonarQube Cloud displayed **89 dependency-risk entries** before the dependency review. The application did not import the direct `node.js@0.0.1-security` npm package, so it was removed; Node.js comes from the runtime, not that package. Dependency locks were updated to patched `handlebars`, `node-forge`, `qs` and `lodash` versions where applicable. Runtime dependency audits were added to CI. The **current Cloud dependency-risk count has not been verified**, so the earlier 89 is a baseline rather than a claim that all risks were cleared.
+
+A later Cloud issue list showed **one open Low security issue**: possible log injection in `Project/server/middleware/errorMiddleware.js`. The fallback logger previously included the request URL and error name, which could contain attacker-controlled newlines. It now logs a generated incident ID and returns that ID in the `X-Incident-Id` response header while keeping the same safe 500 response body. A regression test checks that forged newline text is absent from the log. The screenshot of the open issue predates this fix; a later SonarQube Cloud scan has not been provided to confirm closure.
+
+[Screenshot: SonarQube Cloud dependency-risk view showing the original 89 entries and the listed packages.]
+
+[Screenshot: SonarQube Cloud issue list showing the Low log-injection finding in `errorMiddleware.js` before its fix.]
+
+SonarQube Cloud findings guided the code changes above; the scanner and gate continue to report remaining risks and coverage gaps. The separate test repository provides the Cloud analysis because the Classroom50 repository itself cannot currently connect to that service.
