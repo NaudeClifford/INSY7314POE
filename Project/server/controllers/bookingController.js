@@ -24,9 +24,10 @@ exports.createBooking = async (req, res, next) => {
     try {
       const amount = Math.round(gig.price * 100) / 100;
       const platformFee = Math.round(amount * 0.1 * 100) / 100;
-      const taxableIncome = amount - platformFee;
-      const taxAmount = Math.round(taxableIncome * 0.15 * 100) / 100;
-      const freelancerAmount = Math.round((taxableIncome - taxAmount) * 100) / 100;
+      // The platform does not withhold income tax. The dashboard estimates
+      // personal tax over the tax year from completed earnings.
+      const taxAmount = 0;
+      const freelancerAmount = Math.round((amount - platformFee) * 100) / 100;
       const transaction = await Transaction.create({
         bookingId: booking._id,
         clientId: booking.clientId,

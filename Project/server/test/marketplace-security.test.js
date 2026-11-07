@@ -256,8 +256,8 @@ test("a booking uses the gig price from the database and creates a transaction",
   assert.equal(booking.clientId, IDS.client);
   assert.equal(transaction.amount, 1000);
   assert.equal(transaction.platformFee, 100);
-  assert.equal(transaction.taxAmount, 135);
-  assert.equal(transaction.freelancerAmount, 765);
+  assert.equal(transaction.taxAmount, 0);
+  assert.equal(transaction.freelancerAmount, 900);
   assert.equal(transaction.freelancerId, IDS.freelancer);
   assert.equal(transaction.status, "pending");
 });
