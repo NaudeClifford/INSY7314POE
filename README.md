@@ -1090,7 +1090,9 @@ During the SonarQube review (section 16), the team also fixed three NoSQL-inject
 
 **Account lockout demo** (`npm run test:lockout`): the 401s, the 429 lock and an unaffected account.
 
-![Lockout Newman run](Screenshots/25-lockout-newman.png)
+![Lockout Newman run, part 1](Screenshots/25.1-lockout-newman.png)
+
+![Lockout Newman run, part 2](Screenshots/25.2-lockout-newman.png)
 
 **Session revocation** (`npm run test:api`, folder 7): a token copied before logout is rejected afterwards.
 
@@ -1102,4 +1104,6 @@ During the SonarQube review (section 16), the team also fixed three NoSQL-inject
 
 **Both features in Better Stack:** `auth.account.locked` and `auth.token.revoked` events.
 
-![Better Stack security events](Screenshots/28-betterstack-security-events.png)
+![Better Stack auth.account.locked event](Screenshots/28.1-betterstack-security-events.png)
+
+![Better Stack auth.token.revoked event](Screenshots/28.2-betterstack-security-events.png)
