@@ -71,8 +71,8 @@ Part 3 was split by marking criterion.
 | README Updates (5) | `Ruan Helgaard Hartman` | Updated README | [6](#6-backend-api) |
 | CI/CD Pipeline Backend && Frontend (20) | `Alexandro Ornelas` | GitHub Actions backend, frontend, Newman and build checks | [16](#16-part-3-income-ci-and-static-analysis) |
 | Static Code Analysis (10) | `Alexandro Ornelas` | ESLint and backend syntax check here; SonarQube Cloud evidence in the companion repository | [16](#16-part-3-income-ci-and-static-analysis) |
-| Logging (10) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
-| 2 Security Features (15) |  `Caleb Forbes` | work to be noted | [11](#11-testing) |
+| Logging (10) | `Caleb Forbes` | Structured request, business and security events with Better Stack transport and redaction | [17](#17-logging-and-monitoring) |
+| 2 Security Features (15) | `Caleb Forbes` | Per-account login lockout and server-side session revocation | [18](#18-additional-security-features) |
 | Tax + Income Dashboard (20) | `Clifford Naude` | SARS 2027 progressive estimate and responsive earnings dashboard | [16](#16-part-3-income-ci-and-static-analysis) |
 
 ---
