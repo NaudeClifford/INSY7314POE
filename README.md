@@ -36,6 +36,8 @@ HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. 
 14. [What changed from Part 1](#14-what-changed-from-part-1)
 15. [References](#15-references)
 16. [Part 3 income, CI and static analysis](#16-part-3-income-ci-and-static-analysis)
+17. [Logging and monitoring](#17-logging-and-monitoring)
+18. [Additional security features](#18-additional-security-features)
 
 ---
 
@@ -920,3 +922,184 @@ A later Cloud issue list showed **one open Low security issue**: possible log in
 [Screenshot: SonarQube Cloud issue list showing the Low log-injection finding in `errorMiddleware.js` before its fix.]
 
 SonarQube Cloud findings guided the code changes above; the scanner and gate continue to report remaining risks and coverage gaps. The separate test repository provides the Cloud analysis because the Classroom50 repository itself cannot currently connect to that service.
+
+## 17. Logging and monitoring
+
+HustleHub+ records every important action as a **structured JSON log event** and sends it to **Better Stack**, a cloud log platform, as well as to the terminal and local log files. Each line answers *what happened, to whom, from where, and in which request*, so the team can investigate an incident, spot an attack while it is happening, and prove what the system did.
+
+### 17.1 How it works
+
+| Part | File | Purpose |
+| --- | --- | --- |
+| Logger | `Project/server/utils/logger.js` | Winston logger. Writes one JSON object per line, cleans every value, and sends entries to up to three destinations. |
+| Request logger | `Project/server/middleware/requestLogger.js` | Gives each request a unique ID (returned in the `X-Request-Id` header) and writes one `http.request` entry with method, route, status code and duration. |
+| Event calls | Controllers and middleware | `logEvent(level, "area.action.result", req, details)` at each security or business event (table below). |
+
+**Where logs go**
+
+| Destination | When | Used for |
+| --- | --- | --- |
+| **Better Stack** (cloud) | When `BETTER_STACK_SOURCE_TOKEN` and `BETTER_STACK_INGESTING_HOST` are set | Central, searchable storage that survives restarts and containers; live tail, filters, dashboards and alerts |
+| Terminal (stdout) | Always | Local development, `docker logs`, GitHub Actions output |
+| `Project/server/logs/app.log` | Unless `LOG_TO_FILE=false` | Every entry, rotated at 5 MB (5 files kept) |
+| `Project/server/logs/security.log` | Unless `LOG_TO_FILE=false` | `warn` and `error` entries only: a quick list of suspicious activity |
+
+Log files are git-ignored. During automated tests the logger is silent, unless `LOG_LEVEL` is set.
+
+**Every entry contains** `timestamp`, `level`, `event`, `category` (the part before the first dot), `service` (`hustlehub-api`), `environment`, the `requestId`, the client `ip`, and, for signed-in users, `userId` and `userRole`, plus the event's own details. Because all events from one request share a `requestId`, a booking can be followed from the HTTP request to the booking and the transaction it created.
+
+Example (one line in the log, formatted here for reading):
+
+```json
+{
+  "timestamp": "2026-11-08T13:18:02.658Z",
+  "level": "warn",
+  "event": "auth.login.failed",
+  "category": "auth",
+  "reason": "wrong_password",
+  "email": "c***@hustlehub.test",
+  "accountKey": "a0e5f9a06b02aac0",
+  "failedCount": 1,
+  "ip": "127.0.0.1",
+  "requestId": "b6e090f2-f7b8-46a0-844b-8a9531a3eb75",
+  "service": "hustlehub-api",
+  "environment": "development"
+}
+```
+
+### 17.2 What is logged and why
+
+| Area | Events | Level | Why it matters |
+| --- | --- | --- | --- |
+| **Login attempts** | `auth.login.success`, `auth.login.failed` (with `reason`: `unknown_email`, `wrong_password`, `inactive_account`, `no_local_password`, and `failedCount`) | info / warn | Shows who signed in and when. Repeated failures reveal password guessing or credential stuffing. The reason is logged for investigators but never shown to the user. |
+| **Account lockout** | `auth.account.locked`, `auth.login.blocked_locked` | error / warn | A brute-force attack against one account. `error` level so it stands out and can trigger an alert. |
+| **Registration and logout** | `auth.register.success`, `auth.register.duplicate`, `auth.logout` | info / warn | Account creation history; repeated duplicate attempts can indicate email enumeration. |
+| **Tokens** | `auth.token.invalid` (expired, forged or malformed), `auth.token.revoked`, `auth.token.account_unavailable` | warn | Forged or reused tokens are a sign of session hijacking. |
+| **Access control** | `access.denied.role`, `access.denied.booking`, `access.denied.transaction` | warn | A user trying to reach another role's routes or someone else's data, which is the main sign of privilege-escalation or IDOR probing. |
+| **Bookings** | `booking.created`, `booking.create.rejected`, `booking.status.changed` (from/to), `booking.status.rejected` | info / warn | An audit trail of every booking and status change, for disputes and fraud checks. |
+| **Transactions** | `transaction.created` (amount, fee, freelancer amount, invoice), `transaction.status.changed`, `transaction.payout.recorded`, `transaction.payout.rejected`, `transaction.create.failed` | info / warn / error | A financial audit trail: every amount the platform records or pays out can be traced to a request and a user. |
+| **Attacks blocked** | `security.rate_limit.auth`, `security.rate_limit.booking`, `security.origin.blocked` | warn | Shows when the rate limits and the CSRF origin check stop real traffic. |
+| **Admin actions** | `admin.user.updated` (fields changed, new role, deactivation), `user.account.deactivated` | info / warn | Who changed whose role or disabled whose account. Privileged actions must be accountable. |
+| **Errors** | `server.error` (with `incidentId`, route and error class), `server.unhandled_rejection`, `server.uncaught_exception` | error | Unexpected failures. The `incidentId` is also returned to the user in the `X-Incident-Id` header, so a user's report can be matched to the exact log line. |
+| **Server lifecycle** | `server.started`, `server.stopping`, `server.start_failed` | info / error | Shows restarts, crashes and deployments. |
+| **Every request** | `http.request` (method, route, status, duration) | info, or warn for 4xx and error for 5xx | Traffic, error rates and slow endpoints. |
+
+### 17.3 Keeping the logs safe
+
+Logs are only useful if they can be trusted and do not become a data leak themselves.
+
+- **No secrets:** any field whose name looks like a password, token, secret, cookie, session or authorization header is replaced with `[redacted]`. Passwords and JWTs are never passed to the logger at all.
+- **No full email addresses:** emails are masked (`c***@hustlehub.test`) and paired with a short SHA-256 `accountKey`, so repeated attempts on one account can be linked without storing the address.
+- **No log injection:** every entry is one JSON object, control characters such as `\r\n` are removed, and strings are capped at 200 characters, so attacker input cannot forge extra log lines. This matches the log-injection fix made after the SonarQube review (section 16).
+- **No raw URLs:** the route is logged as a cleaned label (for example `/api/bookings/:param/status`); IDs, query strings and other user-typed text are dropped.
+- **Errors are not exposed:** the error message and stack stay on the server. The client only receives the generic message and the incident ID.
+
+### 17.4 Setting up Better Stack (cloud logging)
+
+1. Create a free account at [betterstack.com](https://betterstack.com), go to **Sources** and click **Connect source**.
+2. Name it `HustleHub API`, choose **Node.js** as the platform, and create the source.
+3. Open the source and click **Configure**. Copy the **Source token** and the **Ingesting host** into `Project/.env`:
+
+   ```env
+   BETTER_STACK_SOURCE_TOKEN=your-source-token
+   BETTER_STACK_INGESTING_HOST=s123456.eu-nbg-2.betterstackdata.com
+   ```
+
+4. Restart the API. The `server.started` event shows `"cloudLogging":"better-stack"` and appears in Better Stack's **Live tail** within a few seconds ([Better Stack Winston guide](https://betterstack.com/docs/logs/javascript/winston/)).
+
+Useful searches in Better Stack: `event:auth.login.failed`, `level:error`, `category:transaction`, `event:auth.account.locked`, or a `requestId` to see everything from one request. The token is a secret: it lives only in `.env` (or the Docker environment / a GitHub Actions secret) and is never committed. Without these two values the app still logs to the terminal and local files.
+
+### 17.5 Logging evidence
+
+**Better Stack Live tail:** HustleHub API events arriving in the cloud (`http.request`, `auth.login.success`, `booking.created`, `transaction.created`).
+
+![Better Stack live tail](Screenshots/20-betterstack-live-tail.png)
+
+**Failed logins in Better Stack:** masked emails, the failure reason and the failed count for each attempt.
+
+![Better Stack failed logins](Screenshots/21-betterstack-failed-logins.png)
+
+**A transaction audit entry:** amount, platform fee, freelancer amount, invoice number and request ID.
+
+![Better Stack transaction entry](Screenshots/22-betterstack-transaction-entry.png)
+
+**Local security log:** `Project/server/logs/security.log` contains only warn and error entries.
+
+![Security log file](Screenshots/23-security-log-file.png)
+
+**Automated tests** for logging, account lockout and session revocation, all passing.
+
+![Logging and security tests](Screenshots/24-logging-tests.png)
+
+---
+
+## 18. Additional security features
+
+Parts 1 and 2 already cover the minimum controls: HTTPS, bcrypt, JWT in an HttpOnly cookie, RBAC, validation, rate limiting, Helmet/CSP and the CSRF origin check. Part 3 adds two security features beyond those minimums. Both are fully tested, logged, and need no frontend changes, because the React app already shows the API's message and already calls the logout endpoint.
+
+### 18.1 Feature 1: Per-account lockout after repeated failed logins
+
+**The gap it closes.** The Part 2 rate limiter counts requests **per IP address**. An attacker spreading guesses across many IP addresses (a botnet or rotating proxies) could still try unlimited passwords against **one** account.
+
+**How it works** (`services/accountLockout.js`, `models/LoginAttempt.js`, `controllers/authController.js`):
+
+1. Every failed sign-in for an email address is counted in the `loginattempts` collection. The address is stored only as a SHA-256 hash.
+2. **5 failures within 15 minutes lock that account for 15 minutes.** The fifth failure, and every attempt during the lock, returns `429` with a `Retry-After` header and the message *"Too many failed sign-in attempts. This account is temporarily locked. Try again later."*
+3. While locked, **even the correct password is refused** and no session cookie is issued. The password is not even checked, which also saves CPU.
+4. A successful sign-in resets the counter. Locks expire on their own, and a MongoDB TTL index deletes old records.
+5. **No account enumeration:** unknown email addresses are counted and locked the same way, so an attacker cannot use the lockout to discover which emails are registered. Before the lock, every failure still returns the same generic *"Invalid email or password."*
+6. Every failure is logged as `auth.login.failed` with its reason and count, and the lock itself as `auth.account.locked` (level `error`).
+
+The limits can be changed in `.env` (`LOGIN_MAX_FAILED_ATTEMPTS`, `LOGIN_ATTEMPT_WINDOW_MINUTES`, `LOGIN_LOCKOUT_MINUTES`). The trade-off is that someone who knows a user's email could lock them out for 15 minutes. The short, automatic unlock keeps that impact small, and the IP rate limiter still limits how fast one attacker can do it.
+
+| | Before (Part 2) | After (Part 3) |
+| --- | --- | --- |
+| 1 attacker, 1 IP | Blocked after 30 requests / 15 min | Account locked after 5 wrong passwords |
+| Many IPs, 1 account | Unlimited guesses | Account locked after 5 wrong passwords |
+| Correct password during an attack | Accepted | Refused until the lock expires |
+
+### 18.2 Feature 2: Server-side session revocation
+
+**The gap it closes.** A JWT is valid until it expires (up to 7 days with the current settings). Before this change, *logging out only deleted the cookie in the browser*. A token that had been copied, for example through a shared computer, malware or a leaked request log, kept working for days. Likewise, a user who was deactivated or had their role changed kept their existing session.
+
+**How it works** (`models/User.js`, `controllers/authController.js`, `middleware/authMiddleware.js`):
+
+1. Every user has a `tokenVersion` number. Each JWT records the version it was issued with (`tv`).
+2. On every protected request, `protect` compares the token's version with the user's current version. If they differ, the request is rejected with `401` *"Session has ended. Please log in again."* and an `auth.token.revoked` event is logged.
+3. The version is increased when:
+   - the user **logs out**, so every token issued before the logout stops working at once, on every device;
+   - an admin **changes the user's role** or **deactivates** the account;
+   - a user **deletes (deactivates)** their own account, or an admin removes it.
+4. Editing other profile details does not log anyone out. Tokens issued before this feature (with no version) count as version 0, so existing sessions keep working until the next logout.
+
+### 18.3 Related hardening by the team
+
+During the SonarQube review (section 16), the team also fixed three NoSQL-injection findings: scalar `$eq` email filters, validated `ObjectId` conversion for bookings, and escaped literal gig search. The login lookup added in this part uses the same `$eq` filter.
+
+### 18.4 How the features are tested
+
+| Test | What it proves |
+| --- | --- |
+| `test/account-lockout.test.js` (9 tests) | Locks on the 5th failure with `Retry-After`; email case and spaces cannot bypass it; the correct password is refused while locked; success resets the counter; locks and windows expire; only a hash is stored; unknown emails lock identically. |
+| `test/session-revocation.test.js` (9 tests) | Login puts the version in the JWT; logout revokes a copied token; an invalid logout revokes nothing; revoked tokens fail on role-protected routes; role changes and deactivation revoke; ordinary profile edits do not. |
+| `test/logging.test.js` (14 tests) | Request IDs and route labels; login, booking, transaction, access-denied, invalid-token, blocked-origin, rate-limit and error events; secrets redacted, emails masked, no log injection, no raw URLs. |
+| Postman, main collection, folder 7 | A token copied before logout works, logout succeeds, and the same token is then rejected with `401` *Session has ended*. |
+| Postman, `HustleHub Part 3 - Account Lockout Demo` (`npm run test:lockout`) | Four `401`s, a `429` lock with `Retry-After`, the correct password refused while locked, an unknown email locked the same way, and another account unaffected. |
+
+### 18.5 Security feature evidence
+
+**Account lockout demo** (`npm run test:lockout`): the 401s, the 429 lock and an unaffected account.
+
+![Lockout Newman run](Screenshots/25-lockout-newman.png)
+
+**Session revocation** (`npm run test:api`, folder 7): a token copied before logout is rejected afterwards.
+
+![Revocation Newman run](Screenshots/26-revocation-newman.png)
+
+**Lockout in the app:** the login page after five wrong passwords.
+
+![Locked login page](Screenshots/27-lockout-login-page.png)
+
+**Both features in Better Stack:** `auth.account.locked` and `auth.token.revoked` events.
+
+![Better Stack security events](Screenshots/28-betterstack-security-events.png)
