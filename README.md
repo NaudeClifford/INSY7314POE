@@ -1218,3 +1218,6 @@ Our Solution: Helmet headers hide underlying server technologies. A central erro
 ### Conclusion
 The Security Architecture of HustleHub+ demonstrates a robust, defense-in-depth approach tailored specifically for modern web applications. By embedding security directly into the backend server- through server-side session revocasion, role based access control, strict input validation, and per-account lockout mechanisms- the system eliminates single points of failure and prevents client side tamperingg. Paired with structured cloud logging and automated testing pipelines, HustleHub+ ensures that all business logic remains secure, operational events stay fully auditable, and platform integrity is maintained aggainst evolving web applications.
 
+### Reference List
+ Hostinger. 2025. Web Application Security: What it is and how it works, 24 June 2025. [Online]. Available at: https://www.hostinger.com/tutorials/web-application-security/?utm_source=google&utm_medium=cpc&utm_id=23195310693&utm_campaign=Generic-Tutorials-DSA-t2|NT:Se|LO:Other-AFRICA&utm_term=&utm_content=781442702147&gad_source=1&gad_campaignid=23195310693&gbraid=0AAAAADMy-haKqvFZk5ZDgwxDwoRqHaYr6&gclid=CjwKCAiA2MDXBhBUEiwAD-YB-7fsCeh_qM7IWMx1R0rh7uQwBh0mqGFeDEtk9G0iO9RYLdpo7reTrhoCPYEQAvD_BwE
+[Accessed 09/11/2026]
