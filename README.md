@@ -38,6 +38,7 @@ HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. 
 16. [Part 3 income, CI and static analysis](#16-part-3-income-ci-and-static-analysis)
 17. [Logging and monitoring](#17-logging-and-monitoring)
 18. [Additional security features](#18-additional-security-features)
+19. [Docker Compose and container CI](#19-docker-compose-and-container-ci)
 
 ---
 
@@ -66,7 +67,7 @@ Part 3 was split by marking criterion.
 
 | Area (marks) | Owner | What was delivered | README section |
 | --- | --- | --- | --- |
-| Docker Backend and Frontend (10) | `Ruan Helgaard Hartman` | The application is dockerized into containers | [6](#6-backend-api) |
+| Docker Backend and Frontend (10) | `Ruan Helgaard Hartman` | Backend and frontend Dockerfiles, Compose orchestration, and a required container smoke test in CI | [19](#19-docker-compose-and-container-ci) |
 | Security Review in README (10) | `Ruan Helgaard Hartman` | Updated README | [6](#6-backend-api) |
 | README Updates (5) | `Ruan Helgaard Hartman` | Updated README | [6](#6-backend-api) |
 | CI/CD Pipeline Backend && Frontend (20) | `Alexandro Ornelas` | GitHub Actions backend, frontend, Newman and build checks | [16](#16-part-3-income-ci-and-static-analysis) |
@@ -853,7 +854,7 @@ New simulated transactions deduct the 10% platform fee and record zero tax withh
 
 This is the Classroom50 repository. The Classroom50 organization blocked SonarQube Cloud access to it, and it could not be forked. A separate [HustleHub Part 3 SonarQube test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test) was therefore created as a copy of the application so the GitHub Actions scan could run. The copy has its own commit history; it is not a fork or a SonarQube scan of this Classroom50 repository. Application fixes from the test repository were brought back here. All SonarQube Cloud results described below came from the **test repository's** Cloud project, not this repository.
 
-The Classroom50 workflow retains a conditional SonarQube job, but the organization restriction means it is skipped by default. Its required backend, frontend, API integration and final status checks still run. The test repository's workflow runs the SonarQube job as a required check and waits for the Cloud quality gate.
+The Classroom50 workflow retains a conditional SonarQube job, but the organization restriction means it is skipped by default. Its required backend, frontend, API integration, container smoke test and final status checks still run. The test repository's workflow runs the SonarQube job as a required check and waits for the Cloud quality gate.
 
 ### GitHub Actions pipelines and workflows
 
@@ -866,8 +867,9 @@ The [CI workflow](.github/workflows/ci.yml) runs for every push and pull request
 | `backend` | Installs `Project/server` dependencies, checks high or critical **runtime** dependency advisories, runs the Node.js backend test suite, and parses every backend JavaScript file with `node --check`. | A dependency audit, test or syntax check fails. |
 | `frontend` | Installs `Project/client` dependencies, checks high or critical runtime advisories, runs ESLint and Vitest, then builds the production React bundle with Vite. | An audit, lint rule, test or build fails. |
 | `api-integration` | Starts a health-checked MongoDB 7 service, generates a temporary JWT secret, installs the root and backend packages, audits root runtime dependencies, creates the test HTTPS certificate, seeds only the `hustlehub_ci` database, starts the HTTPS API, waits for its health endpoint, and runs the Postman collection through Newman. | Installation, audit, database seed, API startup, health check or a Newman assertion fails. |
+| `containers` | Builds the backend and production frontend Docker images, starts both with MongoDB through Compose, waits for all three health checks, then checks the direct API, the frontend route and the proxied API. Uploads container status and logs. | A build, startup, health check or HTTP smoke test fails. |
 | `sonarqube` | When enabled, waits for `backend` and `frontend`, generates backend and frontend LCOV reports, checks for the Cloud credentials, runs `SonarSource/sonarqube-scan-action@v8.3.0`, and waits for the quality gate. | Required configuration is missing, analysis fails, or the Cloud quality gate fails. It is **skipped by default here** because the organization blocks the connection. |
-| `ci-result` | Runs even when an earlier job fails. It requires `backend`, `frontend` and `api-integration` to succeed. It requires `sonarqube` to have been skipped when disabled, or to succeed when enabled. | Any required result differs from the expected status. |
+| `ci-result` | Runs even when an earlier job fails. It requires `backend`, `frontend`, `api-integration` and `containers` to succeed. It requires `sonarqube` to have been skipped when disabled, or to succeed when enabled. | Any required result differs from the expected status. |
 
 `api-integration` uploads the Newman HTML report as a `newman-report` artifact even when the test job fails; on failure it also uploads the API log. The MongoDB service and generated secret exist only for that CI run. The workflow does not deploy the application.
 
@@ -876,7 +878,7 @@ The [CI workflow](.github/workflows/ci.yml) runs for every push and pull request
 
 #### `CI and static analysis` in the SonarQube test repository
 
-The [test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test) has the same backend, frontend and Newman integration checks. Its `sonarqube` job is **required** rather than conditional. It starts only after backend and frontend checks succeed, installs both packages, creates their LCOV coverage reports, and scans the source with the official SonarQube action. The action waits for the SonarQube Cloud quality gate, so a completed scan with a failed gate fails the job. Its final `ci-result` requires all four jobs to succeed; a skipped or failed SonarQube job cannot produce a green result. The test repository did not retain CodeQL as a second scanner because GitHub code scanning was unavailable there; SonarQube Cloud supplied the static analysis and quality gate.
+The [test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test) has the same backend, frontend, Newman integration and container checks. Its `sonarqube` job is **required** rather than conditional. It starts only after backend and frontend checks succeed, installs both packages, creates their LCOV coverage reports, and scans the source with the official SonarQube action. The action waits for the SonarQube Cloud quality gate, so a completed scan with a failed gate fails the job. Its final `ci-result` requires all five jobs to succeed; a skipped or failed SonarQube job cannot produce a green result. The test repository did not retain CodeQL as a second scanner because GitHub code scanning was unavailable there; SonarQube Cloud supplied the static analysis and quality gate.
 
 The [Sonar project configuration](sonar-project.properties) scans `Project/server` and `Project/client/src`, identifies test directories separately, and imports backend and frontend LCOV reports. Generated files, dependencies and tests are excluded from source analysis. One-off backend CLI scripts are excluded from **coverage**; application controllers, models, pages and the frontend entry point remain in scope. This distinction matters because an untested source file appears as uncovered in SonarQube Cloud even if a test runner's own report lists only imported files.
 
@@ -920,6 +922,22 @@ A later Cloud issue list showed **one open Low security issue**: possible log in
 [Screenshot: SonarQube Cloud dependency-risk view showing the original 89 entries and the listed packages.]
 
 [Screenshot: SonarQube Cloud issue list showing the Low log-injection finding in `errorMiddleware.js` before its fix.]
+
+#### Dockerfile findings from the container scan
+
+After Docker support was added, SonarQube Cloud reported two open issues in `Project/server/Dockerfile`: a High security finding for recursively copying the whole build context and a Medium security finding for allowing npm lifecycle scripts during installation. The GitHub Actions Docker Compose smoke test passed on that run, but the SonarQube Cloud quality gate failed.
+
+The backend image now copies runtime JavaScript files from specified source directories plus the certificate generator, admin bootstrap command and certificate configuration, so local `.env` files, tests, seed data and other build-context contents cannot be swept into the image by a broad `COPY . .`. Its production dependency install uses `npm ci --ignore-scripts`; the backend lockfile does not mark any dependency as requiring an install script. A local rebuild confirmed that MongoDB, the API and the client became healthy, and the direct API, proxied API and login page all returned HTTP 200. A new SonarQube Cloud scan is still needed to confirm the two findings close and the quality gate passes.
+
+[Screenshot: SonarQube Cloud test-project issue list showing both Dockerfile findings before the fix.]
+
+[Screenshot: GitHub Actions run showing the Docker Compose smoke test passing while the SonarQube Cloud quality gate failed.]
+
+#### Admin bootstrap email validation finding
+
+A later SonarQube Cloud scan flagged the email-format expression in `Project/server/scripts/bootstrapAdmin.js` for possible super-linear backtracking. The admin command now checks the length, local part and domain labels with bounded string operations instead of that regular expression. It still accepts ordinary admin addresses such as `admin2@hustlehub.test`; password rules and account-lockout clearing are unchanged. A subsequent Cloud scan is needed to confirm the issue closes.
+
+[Screenshot: SonarQube Cloud issue detail showing the super-linear regular expression finding in `bootstrapAdmin.js` before the fix.]
 
 SonarQube Cloud findings guided the code changes above; the scanner and gate continue to report remaining risks and coverage gaps. The separate test repository provides the Cloud analysis because the Classroom50 repository itself cannot currently connect to that service.
 
@@ -1107,3 +1125,57 @@ During the SonarQube review (section 16), the team also fixed three NoSQL-inject
 ![Better Stack auth.account.locked event](Screenshots/28.1-betterstack-security-events.png)
 
 ![Better Stack auth.token.revoked event](Screenshots/28.2-betterstack-security-events.png)
+
+---
+
+## 19. Docker Compose and container CI
+
+The [Compose stack](compose.yaml) runs three services. `mongo` stores application data in a named volume and is reachable only inside the Compose network. `api` uses the [backend Dockerfile](Project/server/Dockerfile) with Node.js 22 and production dependencies, generates a local HTTPS certificate when it starts, and listens on `0.0.0.0:5000` inside its container. `client` uses a multi-stage [frontend Dockerfile](Project/client/Dockerfile): Vite builds the React application, then Nginx serves the built files over HTTPS on host port 5173. Nginx sends `/api/` requests to the backend over the internal network, so the browser uses one origin for the page and API. All three services have health checks; Compose waits for MongoDB before the API and for the API before the client.
+
+The local certificates are self-signed demonstration certificates. Browser access to `https://localhost:5173` therefore requires accepting the certificate warning. The API is also available directly at `https://localhost:5000/api/test`. The MongoDB port is not published to the host. The JWT secret is supplied at runtime and is not built into either image. Optional Better Stack credentials are also supplied at runtime; without them, the API continues to log to the container output.
+
+### Run the containers
+
+From the repository root in PowerShell, generate a fresh secret and start the stack:
+
+```powershell
+$secretBytes = New-Object byte[] 32
+[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($secretBytes)
+$env:JWT_SECRET = [BitConverter]::ToString($secretBytes).Replace('-', '').ToLowerInvariant()
+docker compose up --build --wait
+docker compose ps
+```
+
+Open `https://localhost:5173`. The following requests check both the frontend and the proxied API:
+
+```powershell
+curl.exe -k https://localhost:5173/login
+curl.exe -k https://localhost:5173/api/test
+```
+
+`docker compose logs api client` shows container output. `docker compose down` stops the stack while keeping the MongoDB volume; `docker compose down -v` also deletes the stored database.
+
+### Create or reset the Docker admin account
+
+The Docker MongoDB volume is separate from the local development database. A new volume therefore does not contain the admin created by the development seed script. That seed script deletes other development records and is blocked in production mode; do not use it to set up Docker. Instead, run the following in the **same PowerShell window** after `docker compose up --build --wait`:
+
+```powershell
+$securePassword = Read-Host "Choose a new admin password" -AsSecureString
+$plainPassword = [System.Net.NetworkCredential]::new("", $securePassword).Password
+try {
+    $plainPassword | docker compose exec -T api node scripts/bootstrapAdmin.js admin@hustlehub.test
+} finally {
+    Remove-Variable plainPassword -ErrorAction SilentlyContinue
+    Remove-Variable securePassword -ErrorAction SilentlyContinue
+}
+```
+
+Choose 8–128 characters with uppercase, lowercase, a number and one of `@$!%*?&`. Sign in at `https://localhost:5173/login` with `admin@hustlehub.test` and the password you chose. The command creates the admin if missing or resets only that admin's password, clears its login lockout and revokes its old sessions; it does not erase bookings, transactions or other users. The password is passed through standard input and is not stored in the repository or placed on the command line.
+
+### GitHub Actions container check
+
+The required `containers` job in [CI and static analysis](.github/workflows/ci.yml) creates an isolated JWT secret on its Ubuntu runner, validates the Compose file, builds both application images, and runs the stack until all three health checks pass. It then requests the backend directly, requests the frontend's `/login` route, and requests `/api/test` through the Nginx proxy. A failed build, unhealthy container or failed HTTP request fails the job. Container status and logs are uploaded as the `docker-compose-evidence` artifact even on failure; the job then removes its disposable containers and database volume. The final `ci-result` check requires this job to succeed alongside the other required jobs. This pipeline builds and runs the containers; it does not deploy them.
+
+[Screenshot: GitHub Actions `containers` job showing the two application containers and MongoDB healthy, with the HTTP smoke checks passing.]
+
+[Screenshot: `docker compose ps` showing the `api`, `client` and `mongo` services running and healthy.]
