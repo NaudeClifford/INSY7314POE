@@ -2,6 +2,12 @@
 
 **INSY7314 POE, Part 3: Secure Stack** · Group 1
 
+| Part 3 link | Location |
+| --- | --- |
+| Classroom50 repository | [HustleHub+ classroom repository](https://github.com/EMGPRS/insy7314-2026-insy7314-poe-classroom-st10437348) |
+| SonarQube Cloud test repository | [HustleHub+ SonarQube test repository](https://github.com/st10437348/insy7314-final-poe-SonarQube-test) |
+| Part 3 demonstration video | [Watch the Part 3 demonstration](https://youtu.be/3yA9BrSqaEk?si=3XDKGvWRwcZ-HgKo) |
+
 HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. **Freelancers** list services ("gigs"), **clients** browse and book them, and **admins** oversee the platform. Part 2 extended the Part 1 HTTPS and authentication backend into a secured application. Part 3 adds an income and tax dashboard, CI checks, and SonarQube Cloud analysis in a companion repository. The application includes:
 
 - a marketplace API (gigs, bookings, transactions and income)
@@ -106,7 +112,7 @@ The [CI workflow](.github/workflows/ci.yml) runs for every push and pull request
 
 `api-integration` uploads the Newman HTML report as a `newman-report` artifact even when the test job fails; on failure it also uploads the API log. The MongoDB service and generated secret exist only for that CI run. The workflow does not deploy the application.
 
-[Screenshot: Classroom50 GitHub Actions “CI and static analysis” run showing the backend, frontend, API integration, SonarQube skip and final `ci-result` statuses.]
+![Classroom50 CI run showing passing backend, frontend, API integration, Docker Compose smoke test and final check, with SonarQube Cloud skipped](Screenshots/part3-ci-classroom-successful-run.png)
 
 
 #### `CI and static analysis` in the SonarQube test repository
@@ -120,8 +126,6 @@ The [Sonar project configuration](sonar-project.properties) scans `Project/serve
 ![Successful CI workflow run with backend, frontend, API integration, Docker and SonarQube jobs](Screenshots/part3-ci-successful-run.png)
 
 ![CI artifacts containing Docker Compose evidence and the Newman report](Screenshots/part3-ci-artifacts.png)
-
-![GitHub Actions SonarQube Cloud quality-gate job and required checks passing in the test repository](Screenshots/part3-ci-sonar-quality-gate-passed.png)
 
 ### SonarQube Cloud analysis and fixes
 
@@ -162,8 +166,6 @@ The Cloud coverage views subsequently showed **57.1%**, then **59% overall cover
 
 ![Historical SonarQube Cloud server coverage at 59.0%](Screenshots/part3-sonar-server-coverage-59-percent.png)
 
-[Screenshot: SonarQube Cloud overall coverage view showing the later 59% figure and the lowest-covered application files.]
-
 #### Dependency risks and the remaining security finding
 
 SonarQube Cloud displayed **89 dependency-risk entries** before the dependency review. The application did not import the direct `node.js@0.0.1-security` npm package, so it was removed; Node.js comes from the runtime, not that package. Dependency locks were updated to patched `handlebars`, `node-forge`, `qs` and `lodash` versions where applicable. Runtime dependency audits were added to CI. The earlier 89 is a historical baseline. The latest Cloud summary above shows **20 dependency risks remaining**, so the passing quality gate does not mean all dependency risks were cleared.
@@ -172,16 +174,13 @@ The SonarQube Cloud dependency-risk list records the remaining **20 entries** (s
 
 | Dependency scope | SonarQube Cloud findings | Why they remain and what is still needed |
 | --- | --- | --- |
-| Development dependencies: **19 entries** | Transitive versions of `flatted`, `underscore`, `csv-parse`, `jose`, `picomatch`, `@faker-js/faker`, `uuid`, `uri-js`, `file-type` and `braces`. Most come through Newman or its HTML reporter; `picomatch@4.0.7` also comes through frontend Vite/Vitest tooling. The `braces` entry is marked **withdrawn** in that list, so it should not be described as an active vulnerability. | These packages are installed for API tests, reports, frontend builds or tests. They are not in the production backend image, which installs with `--omit=dev`, or the final frontend image, which serves built assets with Nginx. They still run in development and CI. Changing an application source file cannot patch a transitive package. The parent tools need compatible updates or carefully tested overrides; the team has not verified a change that clears these Cloud findings while preserving the required checks. |
-| Runtime dependency: **1 entry** | `sift@17.1.3` (CVE-2026-85625, prototype pollution), pulled in by server-side Mongoose. | This is included with the running backend and is **not** covered by the development-only explanation. It remains an open risk. A compatible Mongoose/sift dependency update needs to be selected, tested against the application's MongoDB queries, and rescanned in SonarQube Cloud. |
+| Development dependencies: **20 entries** | Transitive versions of `flatted`, `underscore`, `csv-parse`, `jose`, `picomatch`, `@faker-js/faker`, `uuid`, `uri-js`, `file-type` and `braces`. Most come through Newman or its HTML reporter; `picomatch@4.0.7` also comes through frontend Vite/Vitest tooling. The `braces` entry is marked **withdrawn** in that list, so it should not be described as an active vulnerability. | These packages are installed for API tests, reports, frontend builds or tests. They are not in the production backend image, which installs with `--omit=dev`, or the final frontend image, which serves built assets with Nginx. They still run in development and CI. Changing an application source file cannot patch a transitive package. The parent tools need compatible updates or carefully tested overrides; the team has not verified a change that clears these Cloud findings while preserving the required checks. |
 
 The 20 entries are **not proven unfixable**. They were left open because a safe, tested dependency change had not been established for that scan; the runtime `sift` finding deserves priority. The passing quality gate and zero open *code issues* shown above do not clear these separate dependency-risk entries.
 
 [Screenshot: SonarQube Cloud dependency-risk list showing the 20 remaining entries, including the runtime `sift` finding.]
 
 A later Cloud issue list showed **one open Low security issue**: possible log injection in `Project/server/middleware/errorMiddleware.js`. The fallback logger previously included the request URL and error name, which could contain attacker-controlled newlines. It now logs a generated incident ID and returns that ID in the `X-Incident-Id` response header while keeping the same safe 500 response body. A regression test checks that forged newline text is absent from the log. The screenshot of the open issue predates this fix; the latest Cloud issue-list screenshot above shows zero open or confirmed issues, without listing individual issue histories.
-
-[Screenshot: SonarQube Cloud dependency-risk view showing the original 89 entries and the listed packages.]
 
 ![Historical SonarQube Cloud log-injection finding before the fix](Screenshots/part3-sonar-log-injection.png)
 
