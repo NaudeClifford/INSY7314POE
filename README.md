@@ -176,7 +176,7 @@ The SonarQube Cloud dependency-risk list records the remaining **20 entries** (s
 | --- | --- | --- |
 | Development dependencies: **20 entries** | Transitive versions of `flatted`, `underscore`, `csv-parse`, `jose`, `picomatch`, `@faker-js/faker`, `uuid`, `uri-js`, `file-type` and `braces`. Most come through Newman or its HTML reporter; `picomatch@4.0.7` also comes through frontend Vite/Vitest tooling. The `braces` entry is marked **withdrawn** in that list, so it should not be described as an active vulnerability. | These packages are installed for API tests, reports, frontend builds or tests. They are not in the production backend image, which installs with `--omit=dev`, or the final frontend image, which serves built assets with Nginx. They still run in development and CI. Changing an application source file cannot patch a transitive package. The parent tools need compatible updates or carefully tested overrides; the team has not verified a change that clears these Cloud findings while preserving the required checks. |
 
-The 20 entries are **not proven unfixable**. They were left open because a safe, tested dependency change had not been established for that scan; the runtime `sift` finding deserves priority. The passing quality gate and zero open *code issues* shown above do not clear these separate dependency-risk entries.
+The 20 entries are **not proven unfixable**. They were left open because a safe, tested dependency change had not been established for that scan.
 
 [Screenshot: SonarQube Cloud dependency-risk list showing the 20 remaining entries, including the runtime `sift` finding.]
 
