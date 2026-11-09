@@ -178,8 +178,6 @@ The SonarQube Cloud dependency-risk list records the remaining **20 entries** (s
 
 The 20 entries are **not proven unfixable**. They were left open because a safe, tested dependency change had not been established for that scan.
 
-[Screenshot: SonarQube Cloud dependency-risk list showing the 20 remaining entries, including the runtime `sift` finding.]
-
 A later Cloud issue list showed **one open Low security issue**: possible log injection in `Project/server/middleware/errorMiddleware.js`. The fallback logger previously included the request URL and error name, which could contain attacker-controlled newlines. It now logs a generated incident ID and returns that ID in the `X-Incident-Id` response header while keeping the same safe 500 response body. A regression test checks that forged newline text is absent from the log. The screenshot of the open issue predates this fix; the latest Cloud issue-list screenshot above shows zero open or confirmed issues, without listing individual issue histories.
 
 ![Historical SonarQube Cloud log-injection finding before the fix](Screenshots/part3-sonar-log-injection.png)
