@@ -1221,3 +1221,6 @@ The Security Architecture of HustleHub+ demonstrates a robust, defense-in-depth 
 ### Reference List
  Hostinger. 2025. Web Application Security: What it is and how it works, 24 June 2025. [Online]. Available at: https://www.hostinger.com/tutorials/web-application-security/?utm_source=google&utm_medium=cpc&utm_id=23195310693&utm_campaign=Generic-Tutorials-DSA-t2|NT:Se|LO:Other-AFRICA&utm_term=&utm_content=781442702147&gad_source=1&gad_campaignid=23195310693&gbraid=0AAAAADMy-haKqvFZk5ZDgwxDwoRqHaYr6&gclid=CjwKCAiA2MDXBhBUEiwAD-YB-7fsCeh_qM7IWMx1R0rh7uQwBh0mqGFeDEtk9G0iO9RYLdpo7reTrhoCPYEQAvD_BwE
 [Accessed 09/11/2026]
+
+
+I Ruan Hartman, ST10453370 made use of Gemini AI to format the security report. See screenshot of the Chat below: <img width="1182" height="867" alt="Screenshot 2026-11-09 094638" src="https://github.com/user-attachments/assets/a48cd11c-94e9-40f6-9914-20c77016bf95" />
