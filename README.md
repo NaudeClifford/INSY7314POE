@@ -39,6 +39,7 @@ HustleHub+ is a full-stack MERN (MongoDB, Express, React, Node.js) marketplace. 
 17. [Logging and monitoring](#17-logging-and-monitoring)
 18. [Additional security features](#18-additional-security-features)
 19. [Docker Compose and container CI](#19-docker-compose-and-container-ci)
+20. [Security Review Report](#20-security-review-report)
 
 ---
 
@@ -1180,3 +1181,47 @@ The required `containers` job in [CI and static analysis](.github/workflows/ci.y
 [Screenshot: GitHub Actions `containers` job showing the two application containers and MongoDB healthy, with the HTTP smoke checks passing.]
 
 [Screenshot: `docker compose ps` showing the `api`, `client` and `mongo` services running and healthy.]
+
+
+## Security Review Report
+### Introduction
+The HustleHub+ platform is built on a MERN architecture (MongoDB, Express, React, Node.js). It has end-to-end security designed into every layer. Security is enforced strictly on the server side, which ensures that the client side controls server purely for user experience rather than security enforcement. By combining role-based access control, input validation, rate limiting, and centralized auditing, the architecture guarantees robust defence-in-depth against common web application vulnerabilities.
+
+### Threats vs Implemented Protections
+1)	Injection Attacks (Database Manipulation)
+The Threat: Attackers send malicious database commands in request data to bypass logins or access unauthorised data.
+Our Solution: We validate every input to ensure strings, numbers, and ID’s match expected formats before touching MongoDB. We also escape search text and force exact-match filters on sensitive queries. We do this so that submitted data cannot be executed as database commands. Specifically, incoming route parameters undergo explicit ObjectId casting via custom validators to ensure malformed criteria fail safety before query executions.
+
+2)	Cross-Site Scripting (XSS) 
+The Threat: Attackers inject malicious scripts into fields like profile bios or gig listings to steal user sessions or hijack accounts.
+Our Solution: We strip HTML tags from all inputs. Login tokens are stored in HttpOnly browser cookies that JavaScript cannot read, preventing script-based token theft. Additionally, React automatically screens text before rendering, while backend and Vite Helmet configurations enforce Content Security Policies (CSP). This is to restrict script origins and prevent untrusted code executions. 
+
+3)	Weak Authentication & Session Exploits
+The Threat: Attackers attempt to guess passwords using automated bots or hijack active user sessions.
+Our Solution: Entered Passwords must meet complexity requirements and are safely hashed using bcrypt. To block brute-force attacks, accounts automatically lock for minutes after five failed login attempts. To p prevent stale token reuse, the system tracks a database driven tokenVersion on each profile, which instantly revokes active sessions across all devices whenever a user logs out, deactivates their account, or has their role changed.
+
+4)	Broken Access Control & Privilege Escalation
+The Threat: Users attempt to access features or edit records belonging to someone else (for example: a client trying to edit or delete a freelancer’s gig.)
+Our Solution: Middleware checks both the user’s role and whether they own the specific record before granting access. Unauthorised requests return clean error messages. We make sure that there error messages are returned without revealing whether a private record exists. Critical values like pricing and fees are are set strictly by the server and database, ignoring any tampered values in the request. 
+
+5)	Cross-Site Request Forgery (CSRF)
+The Threat: A Malicious website tricks a logged in user ‘s browser into performing unwanted actions on our app.
+Our Solution: We use SameSite=Lax cookie protection alongside custom server checks that inspect the origin of incoming requests. Any state-changing action coming from an untrusted site is blocked immediately. This strict origin validation provides a crucial second layer of defence against cross-site requests that bypass standard cookie policy boundaries.
+
+6)	Rate Limiting & Denial of Service (DoS)
+The Threat: Bots flood authentication or booking pages with excessive requests to crash the server or brute force logins.
+Our Solution: We limit IP Addresses to 30 Login attempts per minutes and gig bookings per hour. We also cap JSON request payload sizes to 32 KB to prevent memory overload. Standardized IETF RateLimit headers are returned in every response, allowing legitimate API consumers to track their remaining quota window gracefully. 
+
+7)	Information Leakage & Security Misconfigurations
+The Threat: System errors leak sensitive server details, stack traces, or database structures to attackers.
+Our Solution: Helmet headers hide underlying server technologies. A central error handler masks internal technical details, returning plain error messages. Structured JSON logs are sanitized by masking user email hashes, redacting tokens, and appending unique X-Incident-Id context headers to assist operational debugging without exposing underlying stack traces.
+
+### Conclusion
+The Security Architecture of HustleHub+ demonstrates a robust, defense-in-depth approach tailored specifically for modern web applications. By embedding security directly into the backend server- through server-side session revocasion, role based access control, strict input validation, and per-account lockout mechanisms- the system eliminates single points of failure and prevents client side tamperingg. Paired with structured cloud logging and automated testing pipelines, HustleHub+ ensures that all business logic remains secure, operational events stay fully auditable, and platform integrity is maintained aggainst evolving web applications.
+
+### Reference List
+ Hostinger. 2025. Web Application Security: What it is and how it works, 24 June 2025. [Online]. Available at: https://www.hostinger.com/tutorials/web-application-security/?utm_source=google&utm_medium=cpc&utm_id=23195310693&utm_campaign=Generic-Tutorials-DSA-t2|NT:Se|LO:Other-AFRICA&utm_term=&utm_content=781442702147&gad_source=1&gad_campaignid=23195310693&gbraid=0AAAAADMy-haKqvFZk5ZDgwxDwoRqHaYr6&gclid=CjwKCAiA2MDXBhBUEiwAD-YB-7fsCeh_qM7IWMx1R0rh7uQwBh0mqGFeDEtk9G0iO9RYLdpo7reTrhoCPYEQAvD_BwE
+[Accessed 09/11/2026]
+
+
+I Ruan Hartman, ST10453370 made use of Gemini AI to format the security report. See screenshot of the Chat below: <img width="1182" height="867" alt="Screenshot 2026-11-09 094638" src="https://github.com/user-attachments/assets/a48cd11c-94e9-40f6-9914-20c77016bf95" />
